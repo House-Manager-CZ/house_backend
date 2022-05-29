@@ -1,4 +1,5 @@
 import {
+  BeforeInsert,
   Column,
   CreateDateColumn,
   DeleteDateColumn,
@@ -8,6 +9,7 @@ import {
 } from 'typeorm';
 import { DB_TABLES } from '../db/constants';
 import { Exclude } from 'class-transformer';
+import { hashSync } from 'bcrypt';
 
 enum USER_STATUSES {
   ACTIVE = 'ACTIVE',
@@ -51,6 +53,11 @@ export default class UserEntity {
 
   @DeleteDateColumn()
   deleted_at: Date;
+
+  @BeforeInsert()
+  async hashPassword() {
+    this.password = hashSync(this.password, 10);
+  }
 }
 
 export { USER_STATUSES };
