@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Not, Repository } from 'typeorm';
+import { FindOptionsWhere, In, Not, Repository } from 'typeorm';
 import UserEntity, { USER_STATUSES } from '../entities/user.entity';
 import { CreateUserDto, UpdateUserDto } from './user-dto';
 
@@ -20,6 +20,49 @@ export class UsersService {
       where: {
         status: Not(In([USER_STATUSES.DELETED])),
       },
+    });
+  }
+
+  public async findById(id: number): Promise<UserEntity> {
+    const user = await this.usersRepository.findOne({
+      where: { id },
+    });
+
+    if (!user) throw new NotFoundException('User not found');
+
+    return user;
+  }
+
+  public async findOne(
+    criteria:
+      | FindOptionsWhere<UserEntity>
+      | Array<FindOptionsWhere<UserEntity>>,
+  ): Promise<UserEntity | false> {
+    const user = this.usersRepository.findOne({
+      where: criteria,
+    });
+
+    if (!user) return false;
+
+    return user;
+  }
+
+  public async findIfRefreshToken(
+    refreshToken: string,
+    criteria:
+      | FindOptionsWhere<UserEntity>
+      | Array<FindOptionsWhere<UserEntity>>,
+  ): Promise<UserEntity | false> {
+    const user = await this.findOne(criteria);
+
+    if (!user) return false;
+
+    if (user.refresh_token === refreshToken) return user;
+  }
+
+  public async setRefreshToken(userId: number, refreshToken: string) {
+    return await this.usersRepository.update(userId, {
+      refresh_token: refreshToken,
     });
   }
 
@@ -48,7 +91,7 @@ export class UsersService {
 
     if (!user) throw new NotFoundException('User not found');
 
-    return await this.usersRepository.save<UserEntity>({
+    return await this.usersRepository.save({
       ...user,
       ...updateDto,
     });

@@ -45,6 +45,13 @@ export default class UserEntity {
   @Exclude()
   password: string;
 
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  @Exclude()
+  refresh_token?: string;
+
   @CreateDateColumn()
   created_at: Date;
 

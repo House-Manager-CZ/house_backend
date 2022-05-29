@@ -35,6 +35,11 @@ export class CreateUsersTable1653242270897 implements MigrationInterface {
             isNullable: false,
           },
           {
+            name: 'refresh_token',
+            type: 'varchar',
+            isNullable: true,
+          },
+          {
             name: 'created_at',
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
