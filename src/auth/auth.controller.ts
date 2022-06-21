@@ -13,6 +13,7 @@ import { Request, Response } from 'express';
 import { LocalAuthGuard } from '../common/guards/local-auth.guard';
 import UserEntity from '../entities/user.entity';
 import { instanceToPlain } from 'class-transformer';
+import { JwtRefreshAuthGuard } from '../common/guards/jwt-refresh-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -39,6 +40,18 @@ export class AuthController {
 
     response.setHeader('Set-Cookie', [accessCookie, refreshCookie.cookie]);
 
+    return response.send(instanceToPlain(request.user));
+  }
+
+  @Post('refresh')
+  @UseGuards(JwtRefreshAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  public async refresh(@Req() request: Request, @Res() response: Response) {
+    const accessToken = this.authService.generateAccessTokenCookie(
+      request.user,
+    );
+
+    response.setHeader('Set-Cookie', [accessToken]);
     return response.send(instanceToPlain(request.user));
   }
 }
