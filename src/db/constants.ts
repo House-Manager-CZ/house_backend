@@ -2,4 +2,8 @@ enum DB_TABLES {
   USERS = 'users',
 }
 
-export { DB_TABLES };
+enum DB_ERROR_CODES {
+  UNIQUE_CONSTRAINT = '23505',
+}
+
+export { DB_TABLES, DB_ERROR_CODES };

@@ -1,12 +1,14 @@
 import {
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, In, Not, Repository } from 'typeorm';
 import UserEntity, { USER_STATUSES } from '../entities/user.entity';
 import { CreateUserDto, UpdateUserDto } from './user-dto';
+import { DB_ERROR_CODES } from '../db/constants';
 
 @Injectable()
 export class UsersService {
@@ -67,18 +69,12 @@ export class UsersService {
   }
 
   public async create(createDto: CreateUserDto): Promise<UserEntity> {
-    const { email } = createDto;
-
-    const usersInDb = await this.usersRepository.find({
-      where: { email },
-    });
-
-    if (usersInDb.length > 0)
-      throw new ConflictException('User already exists');
-
     const user: UserEntity = await this.usersRepository.create(createDto);
-    await this.usersRepository.save(user);
-    return user;
+    return await this.usersRepository.save(user).catch((err: any) => {
+      if (err.code === DB_ERROR_CODES.UNIQUE_CONSTRAINT)
+        throw new ConflictException('User already exists');
+      else throw new InternalServerErrorException("Can't create user");
+    });
   }
 
   public async update(
@@ -91,10 +87,13 @@ export class UsersService {
 
     if (!user) throw new NotFoundException('User not found');
 
-    return await this.usersRepository.save({
-      ...user,
-      ...updateDto,
-    });
+    return await this.usersRepository
+      .save({ ...user, ...updateDto })
+      .catch((err: any) => {
+        if (err.code === DB_ERROR_CODES.UNIQUE_CONSTRAINT)
+          throw new ConflictException('User already exists');
+        else throw new InternalServerErrorException("Can't update user");
+      });
   }
 
   public async delete(id: string): Promise<void> {
@@ -104,10 +103,9 @@ export class UsersService {
 
     if (!user) throw new NotFoundException('User not found');
 
-    if (user.status === USER_STATUSES.DELETED)
-      throw new ConflictException('User already deleted');
-
-    user.status = USER_STATUSES.DELETED;
-    await this.usersRepository.save(user);
+    await this.usersRepository.save({
+      ...user,
+      status: USER_STATUSES.DELETED,
+    });
   }
 }
