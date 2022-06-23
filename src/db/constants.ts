@@ -1,5 +1,6 @@
 enum DB_TABLES {
   USERS = 'users',
+  HOUSES = 'houses',
 }
 
 enum DB_ERROR_CODES {
