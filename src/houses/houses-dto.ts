@@ -1,4 +1,10 @@
-import { IsEmpty, IsNotEmpty, IsOptional, Validate } from 'class-validator';
+import {
+  IsEmpty,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Validate,
+} from 'class-validator';
 import { Point } from 'geojson';
 import { LatLngConstraint } from '../common/validation/constraints/LatLng.constraint';
 import UserEntity from '../entities/user.entity';
@@ -16,7 +22,8 @@ export class CreateHouseDto {
 }
 
 export class UpdateHouseDto {
-  @IsNotEmpty()
+  @IsString()
+  @IsOptional()
   name: string;
 
   @Validate(LatLngConstraint)
