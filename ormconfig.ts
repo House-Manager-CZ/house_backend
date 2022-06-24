@@ -11,7 +11,7 @@ export const connectionSource = new DataSource({
   logging: false,
   synchronize: false,
   name: 'default',
-  entities: ['src/entities/**.entity{.ts,.js}'],
-  migrations: ['src/db/migrations/**/*{.ts,.js}'],
-  subscribers: ['src/db/subscriber/**/*{.ts,.js}'],
+  entities: [__dirname + '/src/entities/**.entity{.ts,.js}'],
+  migrations: [__dirname + '/src/db/migrations/**/*{.ts,.js}'],
+  subscribers: [__dirname + '/src/db/subscriber/**/*{.ts,.js}'],
 });
