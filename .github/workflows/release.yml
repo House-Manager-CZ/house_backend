@@ -6,7 +6,7 @@ on:
       - published
 
 jobs:
-  build_and_push:
+  build_and_push_docker:
     name: Build and push to Docker Hub
     runs-on: ubuntu-latest
     steps:
@@ -24,3 +24,18 @@ jobs:
         with:
           push: true
           tags: housemanager/backend:${{ github.event.release.tag_name }}
+
+  release_to_sentry:
+    name: Release to Sentry
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Create Sentry release
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+        with:
+          environment: production
+          version: ${{ github.ref }}
