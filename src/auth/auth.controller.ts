@@ -6,6 +6,7 @@ import {
   Req,
   Res,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
@@ -14,7 +15,9 @@ import { LocalAuthGuard } from '../common/guards/local-auth.guard';
 import UserEntity from '../entities/user.entity';
 import { instanceToPlain } from 'class-transformer';
 import { JwtRefreshAuthGuard } from '../common/guards/jwt-refresh-auth.guard';
+import SentryInterceptor from '../common/interceptors/sentry.interceptor';
 
+@UseInterceptors(SentryInterceptor)
 @Controller('auth')
 export class AuthController {
   constructor(
