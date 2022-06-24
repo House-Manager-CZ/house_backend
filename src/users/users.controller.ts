@@ -10,6 +10,7 @@ import {
   Post,
   Put,
   UseGuards,
+  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -17,7 +18,9 @@ import { UsersService } from './users.service';
 import { CreateUserDto, UpdateUserDto } from './user-dto';
 import { instanceToPlain } from 'class-transformer';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import SentryInterceptor from '../common/interceptors/sentry.interceptor';
 
+@UseInterceptors(SentryInterceptor)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
