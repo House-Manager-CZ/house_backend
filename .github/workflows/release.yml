@@ -6,12 +6,9 @@ on:
       - published
 
 jobs:
-  build:
-    name: Build
+  build_and_push:
+    name: Build and push to Docker Hub
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-          node-version: [16.x]
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
