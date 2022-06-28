@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import * as redisStore from 'cache-manager-redis-store';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { HousesModule } from './houses/houses.module';
+import { EventsModule } from './events/events.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { HousesModule } from './houses/houses.module';
     UsersModule,
     AuthModule,
     HousesModule,
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [
