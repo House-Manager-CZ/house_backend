@@ -17,6 +17,11 @@ export enum EVENT_STATUSES {
   DELETED = 'DELETED',
 }
 
+export enum EVENT_FOREIGN_KEYS {
+  HOUSE = 'fk_events_house',
+  OWNER = 'fk_events_owner',
+}
+
 @Entity({
   name: DB_TABLES.EVENTS,
 })

@@ -1,6 +1,9 @@
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 import { DB_TABLES } from '../constants';
-import { EVENT_STATUSES } from '../../entities/event.entity';
+import {
+  EVENT_FOREIGN_KEYS,
+  EVENT_STATUSES,
+} from '../../entities/event.entity';
 
 export class CreateEventsTable1656175829850 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -66,7 +69,7 @@ export class CreateEventsTable1656175829850 implements MigrationInterface {
         ],
         foreignKeys: [
           {
-            name: 'fk_events_house',
+            name: EVENT_FOREIGN_KEYS.HOUSE,
             columnNames: ['house'],
             referencedTableName: DB_TABLES.HOUSES,
             referencedColumnNames: ['id'],
@@ -74,7 +77,7 @@ export class CreateEventsTable1656175829850 implements MigrationInterface {
             onUpdate: 'CASCADE',
           },
           {
-            name: 'fk_events_owner',
+            name: EVENT_FOREIGN_KEYS.OWNER,
             columnNames: ['owner'],
             referencedTableName: DB_TABLES.USERS,
             referencedColumnNames: ['id'],
