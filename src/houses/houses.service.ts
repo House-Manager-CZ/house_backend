@@ -50,7 +50,9 @@ export class HousesService {
     id: string,
     updateDto: UpdateHouseDto,
   ): Promise<HouseEntity> {
-    const house = await this.housesRepository.findOne({ where: { id } });
+    const house = await this.housesRepository.findOne({
+      where: { id, status: Not(In([HOUSE_STATUSES.DELETED])) },
+    });
 
     if (!house) throw new NotFoundException('House not found');
 
