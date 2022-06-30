@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -10,11 +11,27 @@ import {
 import { DB_TABLES } from '../db/constants';
 import { Point } from 'geojson';
 import UserEntity from './user.entity';
-import { JoinColumn } from 'typeorm';
+import { JoinColumn, JoinTable } from 'typeorm';
 
-enum HOUSE_STATUSES {
+export enum HOUSE_STATUSES {
   ACTIVE = 'ACTIVE',
   DELETED = 'DELETED',
+}
+
+export enum HOUSE_FOREIGN_KEYS {
+  OWNER = 'fk_houses_owner',
+}
+
+export enum HOUSE_ENTITY_KEYS {
+  ID = 'id',
+  NAME = 'name',
+  STATUS = 'status',
+  LOCATION = 'location',
+  OWNER = 'owner',
+  MEMBERS = 'members',
+  CREATED_AT = 'created_at',
+  UPDATED_AT = 'updated_at',
+  DELETED_AT = 'deleted_at',
 }
 
 @Entity({
@@ -22,13 +39,13 @@ enum HOUSE_STATUSES {
 })
 export default class HouseEntity {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  [HOUSE_ENTITY_KEYS.ID]: string;
 
   @Column({
     type: 'varchar',
     nullable: false,
   })
-  name: string;
+  [HOUSE_ENTITY_KEYS.NAME]: string;
 
   @Column({
     type: 'enum',
@@ -36,26 +53,38 @@ export default class HouseEntity {
     enum: Object.values(HOUSE_STATUSES),
     default: HOUSE_STATUSES.ACTIVE,
   })
-  status: HOUSE_STATUSES;
+  [HOUSE_ENTITY_KEYS.STATUS]: HOUSE_STATUSES;
 
   @Column({
     type: 'geography',
     nullable: true,
   })
-  location: Point | (() => string);
+  [HOUSE_ENTITY_KEYS.LOCATION]: Point | (() => string);
 
   @ManyToOne(() => UserEntity)
   @JoinColumn({ name: 'owner' })
-  owner: UserEntity;
+  [HOUSE_ENTITY_KEYS.OWNER]: UserEntity;
+
+  @ManyToMany(() => UserEntity)
+  @JoinTable({
+    name: DB_TABLES.HOUSE_USERS,
+    joinColumn: {
+      name: 'house_id',
+      referencedColumnName: HOUSE_ENTITY_KEYS.ID,
+    },
+    inverseJoinColumn: {
+      name: 'user_id',
+      referencedColumnName: 'id',
+    },
+  })
+  [HOUSE_ENTITY_KEYS.MEMBERS]: Array<UserEntity>;
 
   @CreateDateColumn()
-  created_at: Date;
+  [HOUSE_ENTITY_KEYS.CREATED_AT]: Date;
 
   @UpdateDateColumn()
-  updated_at: Date;
+  [HOUSE_ENTITY_KEYS.UPDATED_AT]: Date;
 
   @DeleteDateColumn()
-  deleted_at: Date;
+  [HOUSE_ENTITY_KEYS.DELETED_AT]: Date;
 }
-
-export { HOUSE_STATUSES };

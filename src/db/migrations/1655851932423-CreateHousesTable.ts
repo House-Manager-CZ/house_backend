@@ -1,6 +1,10 @@
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 import { DB_TABLES } from '../constants';
-import { HOUSE_STATUSES } from '../../entities/house.entity';
+import {
+  HOUSE_ENTITY_KEYS,
+  HOUSE_FOREIGN_KEYS,
+  HOUSE_STATUSES,
+} from '../../entities/house.entity';
 
 export class CreateHousesTable1655851932423 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -9,7 +13,7 @@ export class CreateHousesTable1655851932423 implements MigrationInterface {
         name: DB_TABLES.HOUSES,
         columns: [
           {
-            name: 'id',
+            name: HOUSE_ENTITY_KEYS.ID,
             type: 'uuid',
             isPrimary: true,
             isUnique: true,
@@ -17,50 +21,50 @@ export class CreateHousesTable1655851932423 implements MigrationInterface {
             default: 'uuid_generate_v4()',
           },
           {
-            name: 'status',
+            name: HOUSE_ENTITY_KEYS.STATUS,
             type: 'enum',
             enum: Object.values(HOUSE_STATUSES),
             default: `'${HOUSE_STATUSES.ACTIVE}'`,
           },
           {
-            name: 'name',
+            name: HOUSE_ENTITY_KEYS.NAME,
             type: 'varchar',
             isNullable: false,
           },
           {
-            name: 'location',
+            name: HOUSE_ENTITY_KEYS.LOCATION,
             type: 'geography',
             isNullable: true,
           },
           {
-            name: 'owner',
+            name: HOUSE_ENTITY_KEYS.OWNER,
             type: 'int',
             unsigned: true,
             isNullable: false,
           },
           {
-            name: 'created_at',
+            name: HOUSE_ENTITY_KEYS.CREATED_AT,
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
             isNullable: false,
           },
           {
-            name: 'updated_at',
+            name: HOUSE_ENTITY_KEYS.UPDATED_AT,
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
             onUpdate: 'CURRENT_TIMESTAMP',
             isNullable: false,
           },
           {
-            name: 'deleted_at',
+            name: HOUSE_ENTITY_KEYS.DELETED_AT,
             type: 'timestamp',
             isNullable: true,
           },
         ],
         foreignKeys: [
           {
-            name: 'fk_houses_owner',
-            columnNames: ['owner'],
+            name: HOUSE_FOREIGN_KEYS.OWNER,
+            columnNames: [HOUSE_ENTITY_KEYS.OWNER],
             referencedTableName: DB_TABLES.USERS,
             referencedColumnNames: ['id'],
             onDelete: 'NO ACTION',

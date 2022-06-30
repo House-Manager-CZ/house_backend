@@ -8,25 +8,26 @@ import {
 import { Point } from 'geojson';
 import { LatLngConstraint } from '../common/validation/constraints/LatLng.constraint';
 import UserEntity from '../entities/user.entity';
+import { HOUSE_ENTITY_KEYS } from '../entities/house.entity';
 
 export class CreateHouseDto {
   @IsNotEmpty()
-  name: string;
+  [HOUSE_ENTITY_KEYS.NAME]: string;
 
   @Validate(LatLngConstraint)
   @IsOptional()
-  location: Point;
+  [HOUSE_ENTITY_KEYS.LOCATION]: Point;
 
   @IsEmpty()
-  owner: UserEntity;
+  [HOUSE_ENTITY_KEYS.OWNER]: UserEntity;
 }
 
 export class UpdateHouseDto {
   @IsString()
   @IsOptional()
-  name: string;
+  [HOUSE_ENTITY_KEYS.NAME]: string;
 
   @Validate(LatLngConstraint)
   @IsOptional()
-  location: Point;
+  [HOUSE_ENTITY_KEYS.LOCATION]: Point;
 }
