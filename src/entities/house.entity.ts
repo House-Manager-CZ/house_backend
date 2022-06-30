@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -10,7 +11,7 @@ import {
 import { DB_TABLES } from '../db/constants';
 import { Point } from 'geojson';
 import UserEntity from './user.entity';
-import { JoinColumn } from 'typeorm';
+import { JoinColumn, JoinTable } from 'typeorm';
 
 export enum HOUSE_STATUSES {
   ACTIVE = 'ACTIVE',
@@ -27,6 +28,7 @@ export enum HOUSE_ENTITY_KEYS {
   STATUS = 'status',
   LOCATION = 'location',
   OWNER = 'owner',
+  MEMBERS = 'members',
   CREATED_AT = 'created_at',
   UPDATED_AT = 'updated_at',
   DELETED_AT = 'deleted_at',
@@ -62,6 +64,20 @@ export default class HouseEntity {
   @ManyToOne(() => UserEntity)
   @JoinColumn({ name: 'owner' })
   [HOUSE_ENTITY_KEYS.OWNER]: UserEntity;
+
+  @ManyToMany(() => UserEntity)
+  @JoinTable({
+    name: DB_TABLES.HOUSE_USERS,
+    joinColumn: {
+      name: 'house_id',
+      referencedColumnName: HOUSE_ENTITY_KEYS.ID,
+    },
+    inverseJoinColumn: {
+      name: 'user_id',
+      referencedColumnName: 'id',
+    },
+  })
+  [HOUSE_ENTITY_KEYS.MEMBERS]: Array<UserEntity>;
 
   @CreateDateColumn()
   [HOUSE_ENTITY_KEYS.CREATED_AT]: Date;

@@ -5,7 +5,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import HouseEntity, { HOUSE_STATUSES } from '../entities/house.entity';
+import HouseEntity, {
+  HOUSE_ENTITY_KEYS,
+  HOUSE_STATUSES,
+} from '../entities/house.entity';
 import { In, Not, Repository } from 'typeorm';
 import { CreateHouseDto, UpdateHouseDto } from './houses-dto';
 import { DB_ERROR_CODES } from '../db/constants';
@@ -20,17 +23,18 @@ export class HousesService {
   public async findAll(): Promise<Array<HouseEntity>> {
     return this.housesRepository.find({
       where: {
-        status: Not(In([HOUSE_STATUSES.DELETED])),
+        [HOUSE_ENTITY_KEYS.STATUS]: Not(In([HOUSE_STATUSES.DELETED])),
       },
-      relations: ['owner'],
+      relations: [HOUSE_ENTITY_KEYS.OWNER, HOUSE_ENTITY_KEYS.MEMBERS],
     });
   }
 
   public async create(createDto: CreateHouseDto): Promise<HouseEntity> {
     const house = await this.housesRepository.create({
       ...createDto,
-      ...(createDto.location && {
-        location: () => `ST_GeomFromText('POINT(${createDto.location})')`,
+      ...(createDto[HOUSE_ENTITY_KEYS.LOCATION] && {
+        [HOUSE_ENTITY_KEYS.LOCATION]: () =>
+          `ST_GeomFromText('POINT(${createDto[HOUSE_ENTITY_KEYS.LOCATION]})')`,
       }),
     });
 
@@ -41,8 +45,8 @@ export class HousesService {
     });
 
     return await this.housesRepository.findOne({
-      where: { id: house.id },
-      relations: ['owner'],
+      where: { [HOUSE_ENTITY_KEYS.ID]: house[HOUSE_ENTITY_KEYS.ID] },
+      relations: [HOUSE_ENTITY_KEYS.OWNER, HOUSE_ENTITY_KEYS.MEMBERS],
     });
   }
 
@@ -51,7 +55,10 @@ export class HousesService {
     updateDto: UpdateHouseDto,
   ): Promise<HouseEntity> {
     const house = await this.housesRepository.findOne({
-      where: { id, status: Not(In([HOUSE_STATUSES.DELETED])) },
+      where: {
+        [HOUSE_ENTITY_KEYS.ID]: id,
+        [HOUSE_ENTITY_KEYS.STATUS]: Not(In([HOUSE_STATUSES.DELETED])),
+      },
     });
 
     if (!house) throw new NotFoundException('House not found');
@@ -59,8 +66,11 @@ export class HousesService {
     await this.housesRepository
       .update(id, {
         ...updateDto,
-        ...(updateDto.location && {
-          location: () => `ST_GeomFromText('POINT(${updateDto.location})')`,
+        ...(updateDto[HOUSE_ENTITY_KEYS.LOCATION] && {
+          [HOUSE_ENTITY_KEYS.LOCATION]: () =>
+            `ST_GeomFromText('POINT(${
+              updateDto[HOUSE_ENTITY_KEYS.LOCATION]
+            })')`,
         }),
       })
       .catch((err: any) => {
@@ -70,19 +80,21 @@ export class HousesService {
       });
 
     return await this.housesRepository.findOne({
-      where: { id },
-      relations: ['owner'],
+      where: { [HOUSE_ENTITY_KEYS.ID]: id },
+      relations: [HOUSE_ENTITY_KEYS.OWNER, HOUSE_ENTITY_KEYS.MEMBERS],
     });
   }
 
   public async delete(id: string): Promise<void> {
-    const house = await this.housesRepository.findOne({ where: { id } });
+    const house = await this.housesRepository.findOne({
+      where: { [HOUSE_ENTITY_KEYS.ID]: id },
+    });
 
     if (!house) throw new NotFoundException('House not found');
 
     await this.housesRepository.save({
       ...house,
-      status: HOUSE_STATUSES.DELETED,
+      [HOUSE_ENTITY_KEYS.STATUS]: HOUSE_STATUSES.DELETED,
     });
   }
 }

@@ -20,6 +20,7 @@ import { CreateHouseDto, UpdateHouseDto } from './houses-dto';
 import { ValidationPipe } from '../common/pipe/validation.pipe';
 import { Request } from 'express';
 import UserEntity from '../entities/user.entity';
+import { HOUSE_ENTITY_KEYS } from '../entities/house.entity';
 
 @Controller('houses')
 export class HousesController {
@@ -44,7 +45,7 @@ export class HousesController {
     @Req() request: Request,
     @Body() createHouseDto: CreateHouseDto,
   ) {
-    createHouseDto.owner = request.user as UserEntity;
+    createHouseDto[HOUSE_ENTITY_KEYS.OWNER] = request.user as UserEntity;
 
     const house = await this.housesService.create(createHouseDto);
 
