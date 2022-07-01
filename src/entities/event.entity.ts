@@ -22,12 +22,24 @@ export enum EVENT_FOREIGN_KEYS {
   OWNER = 'fk_events_owner',
 }
 
+export enum EVENT_ENTITY_KEYS {
+  ID = 'id',
+  STATUS = 'status',
+  NAME = 'name',
+  HOUSE = 'house',
+  HOLDING_AT = 'holding_at',
+  OWNER = 'owner',
+  CREATED_AT = 'created_at',
+  UPDATED_AT = 'updated_at',
+  DELETED_AT = 'deleted_at',
+}
+
 @Entity({
   name: DB_TABLES.EVENTS,
 })
 export default class EventEntity {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  [EVENT_ENTITY_KEYS.ID]: string;
 
   @Column({
     type: 'enum',
@@ -35,34 +47,34 @@ export default class EventEntity {
     enum: Object.values(EVENT_STATUSES),
     default: EVENT_STATUSES.ACTIVE,
   })
-  status: EVENT_STATUSES;
+  [EVENT_ENTITY_KEYS.STATUS]: EVENT_STATUSES;
 
   @Column({
     type: 'varchar',
     nullable: false,
   })
-  name: string;
+  [EVENT_ENTITY_KEYS.NAME]: string;
 
   @ManyToOne(() => HouseEntity)
   @JoinColumn({ name: 'house' })
-  house: HouseEntity;
+  [EVENT_ENTITY_KEYS.HOUSE]: HouseEntity;
 
   @Column({
     type: 'timestamp',
     nullable: false,
   })
-  holding_at: Date;
+  [EVENT_ENTITY_KEYS.HOLDING_AT]: Date;
 
   @ManyToOne(() => UserEntity)
   @JoinColumn({ name: 'owner' })
-  owner: UserEntity;
+  [EVENT_ENTITY_KEYS.OWNER]: UserEntity;
 
   @CreateDateColumn()
-  created_at: Date;
+  [EVENT_ENTITY_KEYS.CREATED_AT]: Date;
 
   @UpdateDateColumn()
-  updated_at: Date;
+  [EVENT_ENTITY_KEYS.UPDATED_AT]: Date;
 
   @DeleteDateColumn()
-  deleted_at: Date;
+  [EVENT_ENTITY_KEYS.DELETED_AT]: Date;
 }

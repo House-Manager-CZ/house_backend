@@ -1,28 +1,29 @@
 import { IsDateString, IsNotEmpty, IsOptional, IsUUID } from 'class-validator';
+import { EVENT_ENTITY_KEYS } from '../entities/event.entity';
 
 export class CreateEventDto {
   @IsNotEmpty()
-  name: string;
+  [EVENT_ENTITY_KEYS.NAME]: string;
 
   @IsNotEmpty()
   @IsUUID()
-  house: string;
+  [EVENT_ENTITY_KEYS.HOUSE]: string;
 
   @IsDateString()
   @IsNotEmpty()
-  holding_at: Date;
+  [EVENT_ENTITY_KEYS.HOLDING_AT]: Date;
 }
 
 export class UpdateEventDto {
   @IsOptional()
-  name: string;
+  [EVENT_ENTITY_KEYS.NAME]: string;
 
   @IsOptional()
   @IsUUID()
-  house: string;
+  [EVENT_ENTITY_KEYS.HOUSE]: string;
 
   @IsOptional()
   @IsDateString()
   @IsNotEmpty()
-  holding_at: Date;
+  [EVENT_ENTITY_KEYS.HOLDING_AT]: Date;
 }

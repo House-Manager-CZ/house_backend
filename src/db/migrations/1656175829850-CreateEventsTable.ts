@@ -1,9 +1,11 @@
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 import { DB_TABLES } from '../constants';
 import {
+  EVENT_ENTITY_KEYS,
   EVENT_FOREIGN_KEYS,
   EVENT_STATUSES,
 } from '../../entities/event.entity';
+import { HOUSE_ENTITY_KEYS } from '../../entities/house.entity';
 
 export class CreateEventsTable1656175829850 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -12,7 +14,7 @@ export class CreateEventsTable1656175829850 implements MigrationInterface {
         name: DB_TABLES.EVENTS,
         columns: [
           {
-            name: 'id',
+            name: EVENT_ENTITY_KEYS.ID,
             type: 'uuid',
             isPrimary: true,
             isUnique: true,
@@ -20,49 +22,49 @@ export class CreateEventsTable1656175829850 implements MigrationInterface {
             default: 'uuid_generate_v4()',
           },
           {
-            name: 'status',
+            name: EVENT_ENTITY_KEYS.STATUS,
             type: 'enum',
             isNullable: false,
             enum: Object.values(EVENT_STATUSES),
             default: `'${EVENT_STATUSES.ACTIVE}'`,
           },
           {
-            name: 'name',
+            name: EVENT_ENTITY_KEYS.NAME,
             type: 'varchar',
             isNullable: false,
           },
           {
-            name: 'house',
+            name: EVENT_ENTITY_KEYS.HOUSE,
             type: 'uuid',
             isNullable: false,
           },
           {
-            name: 'holding_at',
+            name: EVENT_ENTITY_KEYS.HOLDING_AT,
             type: 'timestamp',
             isNullable: false,
           },
           {
-            name: 'owner',
+            name: EVENT_ENTITY_KEYS.OWNER,
             type: 'int',
             unsigned: true,
             isNullable: false,
           },
           {
-            name: 'created_at',
+            name: EVENT_ENTITY_KEYS.CREATED_AT,
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
             onUpdate: 'CURRENT_TIMESTAMP',
             isNullable: false,
           },
           {
-            name: 'updated_at',
+            name: EVENT_ENTITY_KEYS.UPDATED_AT,
             type: 'timestamp',
             default: 'CURRENT_TIMESTAMP',
             onUpdate: 'CURRENT_TIMESTAMP',
             isNullable: false,
           },
           {
-            name: 'deleted_at',
+            name: EVENT_ENTITY_KEYS.DELETED_AT,
             type: 'timestamp',
             isNullable: true,
           },
@@ -70,15 +72,15 @@ export class CreateEventsTable1656175829850 implements MigrationInterface {
         foreignKeys: [
           {
             name: EVENT_FOREIGN_KEYS.HOUSE,
-            columnNames: ['house'],
+            columnNames: [EVENT_ENTITY_KEYS.HOUSE],
             referencedTableName: DB_TABLES.HOUSES,
-            referencedColumnNames: ['id'],
+            referencedColumnNames: [HOUSE_ENTITY_KEYS.ID],
             onDelete: 'CASCADE',
             onUpdate: 'CASCADE',
           },
           {
             name: EVENT_FOREIGN_KEYS.OWNER,
-            columnNames: ['owner'],
+            columnNames: [EVENT_ENTITY_KEYS.OWNER],
             referencedTableName: DB_TABLES.USERS,
             referencedColumnNames: ['id'],
             onDelete: 'NO ACTION',
