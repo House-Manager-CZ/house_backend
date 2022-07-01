@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -32,13 +33,20 @@ export class EventsService {
   }
 
   public async findOne(id: string): Promise<EventEntity> {
-    return await this.eventRepository.findOne({
-      where: {
-        [EVENT_ENTITY_KEYS.ID]: id,
-        [EVENT_ENTITY_KEYS.STATUS]: Not(In([EVENT_STATUSES.DELETED])),
-      },
-      relations: [EVENT_ENTITY_KEYS.HOUSE, EVENT_ENTITY_KEYS.OWNER],
-    });
+    return await this.eventRepository
+      .findOne({
+        where: {
+          [EVENT_ENTITY_KEYS.ID]: id,
+          [EVENT_ENTITY_KEYS.STATUS]: Not(In([EVENT_STATUSES.DELETED])),
+        },
+        relations: [EVENT_ENTITY_KEYS.HOUSE, EVENT_ENTITY_KEYS.OWNER],
+      })
+      .catch((err: QueryFailedError) => {
+        if (err.driverError.code === DB_ERROR_CODES.INVALID_TEXT_REPRESENTATION)
+          throw new BadRequestException('Invalid event ID');
+
+        throw new InternalServerErrorException('Internal server error');
+      });
   }
 
   public async create(

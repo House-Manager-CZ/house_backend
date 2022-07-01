@@ -1,12 +1,10 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
   HttpCode,
   HttpStatus,
-  InternalServerErrorException,
   NotFoundException,
   Param,
   Post,
@@ -19,8 +17,6 @@ import {
 import { EventsService } from './events.service';
 import SentryInterceptor from '../common/interceptors/sentry.interceptor';
 import { instanceToPlain } from 'class-transformer';
-import { QueryFailedError } from 'typeorm';
-import { DB_ERROR_CODES } from '../db/constants';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CreateEventDto, UpdateEventDto } from './events-dto';
 import { ValidationPipe } from '../common/pipe/validation.pipe';
@@ -46,13 +42,7 @@ export class EventsController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
   public async getEvent(@Param('id') id: string) {
-    const event = await this.eventsService
-      .findOne(id)
-      .catch((err: QueryFailedError) => {
-        if (err.driverError.code === DB_ERROR_CODES.INVALID_TEXT_REPRESENTATION)
-          throw new BadRequestException('Invalid event ID');
-        else throw new InternalServerErrorException('Internal server error');
-      });
+    const event = await this.eventsService.findOne(id);
 
     if (!event) throw new NotFoundException('Event not found');
 
