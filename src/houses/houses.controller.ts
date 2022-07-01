@@ -1,5 +1,6 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -11,10 +12,10 @@ import {
   Put,
   Req,
   UseGuards,
+  UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
 import { HousesService } from './houses.service';
-import { instanceToPlain } from 'class-transformer';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CreateHouseDto, UpdateHouseDto } from './houses-dto';
 import { ValidationPipe } from '../common/pipe/validation.pipe';
@@ -22,6 +23,7 @@ import { Request } from 'express';
 import UserEntity from '../entities/user.entity';
 import { HOUSE_ENTITY_KEYS } from '../entities/house.entity';
 
+@UseInterceptors(ClassSerializerInterceptor)
 @Controller('houses')
 export class HousesController {
   constructor(private readonly housesService: HousesService) {}
@@ -34,7 +36,7 @@ export class HousesController {
 
     if (!houses.length) throw new NotFoundException('No houses found');
 
-    return instanceToPlain(houses);
+    return houses;
   }
 
   @Post()
@@ -47,9 +49,7 @@ export class HousesController {
   ) {
     createHouseDto[HOUSE_ENTITY_KEYS.OWNER] = request.user as UserEntity;
 
-    const house = await this.housesService.create(createHouseDto);
-
-    return instanceToPlain(house);
+    return await this.housesService.create(createHouseDto);
   }
 
   @Put('/:id')
@@ -60,9 +60,7 @@ export class HousesController {
     @Param('id') id: string,
     @Body() updateHouseDto: UpdateHouseDto,
   ) {
-    const house = await this.housesService.update(id, updateHouseDto);
-
-    return instanceToPlain(house);
+    return await this.housesService.update(id, updateHouseDto);
   }
 
   @Delete('/:id')
