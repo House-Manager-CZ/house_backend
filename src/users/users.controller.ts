@@ -1,5 +1,6 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -16,11 +17,10 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto, UpdateUserDto } from './user-dto';
-import { instanceToPlain } from 'class-transformer';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import SentryInterceptor from '../common/interceptors/sentry.interceptor';
 
-@UseInterceptors(SentryInterceptor)
+@UseInterceptors(SentryInterceptor, ClassSerializerInterceptor)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -33,7 +33,7 @@ export class UsersController {
 
     if (!users.length) throw new NotFoundException('No users found');
 
-    return instanceToPlain(users);
+    return users;
   }
 
   @Post()
@@ -42,9 +42,7 @@ export class UsersController {
   public async createUser(
     @Body() createUserDto: CreateUserDto,
   ): Promise<Record<string, any>> {
-    const user = await this.usersService.create(createUserDto);
-
-    return instanceToPlain(user);
+    return await this.usersService.create(createUserDto);
   }
 
   @Put('/:id')
@@ -54,9 +52,7 @@ export class UsersController {
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    const user = await this.usersService.update(id, updateUserDto);
-
-    return instanceToPlain(user);
+    return await this.usersService.update(id, updateUserDto);
   }
 
   @Delete('/:id')

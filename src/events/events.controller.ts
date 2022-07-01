@@ -1,5 +1,6 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -16,13 +17,12 @@ import {
 } from '@nestjs/common';
 import { EventsService } from './events.service';
 import SentryInterceptor from '../common/interceptors/sentry.interceptor';
-import { instanceToPlain } from 'class-transformer';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CreateEventDto, UpdateEventDto } from './events-dto';
 import { ValidationPipe } from '../common/pipe/validation.pipe';
 import { Request } from 'express';
 
-@UseInterceptors(SentryInterceptor)
+@UseInterceptors(SentryInterceptor, ClassSerializerInterceptor)
 @Controller('events')
 export class EventsController {
   constructor(private eventsService: EventsService) {}
@@ -35,7 +35,7 @@ export class EventsController {
 
     if (!events.length) throw new NotFoundException('No events found');
 
-    return instanceToPlain(events);
+    return events;
   }
 
   @Get('/:id')
@@ -46,7 +46,7 @@ export class EventsController {
 
     if (!event) throw new NotFoundException('Event not found');
 
-    return instanceToPlain(event);
+    return event;
   }
 
   @Post()
@@ -57,9 +57,7 @@ export class EventsController {
     @Req() req: Request,
     @Body() createEventDto: CreateEventDto,
   ) {
-    const event = await this.eventsService.create(req, createEventDto);
-
-    return instanceToPlain(event);
+    return await this.eventsService.create(req, createEventDto);
   }
 
   @Put('/:id')
@@ -70,9 +68,7 @@ export class EventsController {
     @Param('id') id: string,
     @Body() updateEventDto: UpdateEventDto,
   ) {
-    const event = await this.eventsService.update(id, updateEventDto);
-
-    return instanceToPlain(event);
+    return await this.eventsService.update(id, updateEventDto);
   }
 
   @Delete('/:id')
