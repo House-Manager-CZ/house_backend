@@ -32,7 +32,12 @@ export class AuthService {
 
     const token = this.jwtService.sign(payload);
 
-    return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${jwtConstants.tokenExpiresIn}`;
+    const cookie = `Authentication=${token}; HttpOnly; Path=/; Max-Age=${jwtConstants.tokenExpiresIn}`;
+
+    return {
+      cookie,
+      token,
+    };
   }
 
   public generateRefreshTokenCookie(user: any) {
