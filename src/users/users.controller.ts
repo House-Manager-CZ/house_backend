@@ -10,6 +10,7 @@ import {
   Param,
   Post,
   Put,
+  Req,
   UseGuards,
   UseInterceptors,
   UsePipes,
@@ -19,6 +20,8 @@ import { UsersService } from './users.service';
 import { CreateUserDto, UpdateUserDto } from './user-dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import SentryInterceptor from '../common/interceptors/sentry.interceptor';
+import { Request } from 'express';
+import UserEntity from '../entities/user.entity';
 
 @UseInterceptors(SentryInterceptor, ClassSerializerInterceptor)
 @Controller('users')
@@ -28,7 +31,7 @@ export class UsersController {
   @Get()
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
-  public async getUsers(): Promise<Record<string, any>> {
+  public async getUsers(): Promise<Array<UserEntity>> {
     const users = await this.usersService.findAll();
 
     if (!users.length) throw new NotFoundException('No users found');
@@ -36,12 +39,23 @@ export class UsersController {
     return users;
   }
 
+  @Get('/me')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  public async getAuthenticatedUser(
+    @Req() request: Request,
+  ): Promise<UserEntity> {
+    const currentUser = <UserEntity>request.user;
+
+    return await this.usersService.findById(currentUser.id);
+  }
+
   @Post()
   @UsePipes(ValidationPipe)
   @HttpCode(HttpStatus.CREATED)
   public async createUser(
     @Body() createUserDto: CreateUserDto,
-  ): Promise<Record<string, any>> {
+  ): Promise<UserEntity> {
     return await this.usersService.create(createUserDto);
   }
 
@@ -51,7 +65,7 @@ export class UsersController {
   public async updateUser(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
-  ) {
+  ): Promise<UserEntity> {
     return await this.usersService.update(id, updateUserDto);
   }
 
