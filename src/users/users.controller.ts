@@ -10,6 +10,7 @@ import {
   Param,
   Post,
   Put,
+  Req,
   UseGuards,
   UseInterceptors,
   UsePipes,
@@ -19,6 +20,8 @@ import { UsersService } from './users.service';
 import { CreateUserDto, UpdateUserDto } from './user-dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import SentryInterceptor from '../common/interceptors/sentry.interceptor';
+import { Request } from 'express';
+import UserEntity from '../entities/user.entity';
 
 @UseInterceptors(SentryInterceptor, ClassSerializerInterceptor)
 @Controller('users')
@@ -34,6 +37,17 @@ export class UsersController {
     if (!users.length) throw new NotFoundException('No users found');
 
     return users;
+  }
+
+  @Get('/me')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  public async getAuthenticatedUser(
+    @Req() request: Request,
+  ): Promise<UserEntity> {
+    const currentUser = <UserEntity>request.user;
+
+    return await this.usersService.findById(currentUser.id);
   }
 
   @Post()
