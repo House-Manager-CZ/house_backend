@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   HttpCode,
   HttpStatus,
@@ -7,6 +8,8 @@ import {
   Res,
   UseGuards,
   UseInterceptors,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
@@ -17,6 +20,7 @@ import { JwtRefreshAuthGuard } from '../common/guards/jwt-refresh-auth.guard';
 import SentryInterceptor from '../common/interceptors/sentry.interceptor';
 import { jwtConstants } from './consts';
 import parse from 'parse-duration';
+import { RegisterDto } from './auth-dto';
 
 @UseInterceptors(SentryInterceptor)
 @Controller('auth')
@@ -26,8 +30,8 @@ export class AuthController {
     private readonly usersService: UsersService,
   ) {}
 
-  @UseGuards(LocalAuthGuard)
   @Post('login')
+  @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
   private async login(@Req() request: Request, @Res() response: Response) {
     const accessCookie = this.authService.generateAccessTokenCookie(
@@ -70,6 +74,29 @@ export class AuthController {
       (request.user as UserEntity).id,
       refreshToken.token,
     );
+
+    response.setHeader('Set-Cookie', [accessToken.cookie, refreshToken.cookie]);
+    return response.send({
+      accessToken: accessToken.token,
+      refreshToken: refreshToken.token,
+      expiresIn: parse(jwtConstants.tokenExpiresIn),
+    });
+  }
+
+  @Post('register')
+  @UsePipes(ValidationPipe)
+  @HttpCode(HttpStatus.CREATED)
+  public async register(
+    @Res() response: Response,
+    @Body() registerDto: RegisterDto,
+  ) {
+    const user = await this.usersService.create(registerDto);
+
+    const accessToken = this.authService.generateAccessTokenCookie(user);
+
+    const refreshToken = this.authService.generateRefreshTokenCookie(user);
+
+    await this.usersService.setRefreshToken(user.id, refreshToken.token);
 
     response.setHeader('Set-Cookie', [accessToken.cookie, refreshToken.cookie]);
     return response.send({
