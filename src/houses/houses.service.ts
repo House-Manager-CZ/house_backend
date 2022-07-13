@@ -36,6 +36,7 @@ export class HousesService {
         [HOUSE_ENTITY_KEYS.LOCATION]: () =>
           `ST_GeomFromText('POINT(${createDto[HOUSE_ENTITY_KEYS.LOCATION]})')`,
       }),
+      members: [{ id: createDto[HOUSE_ENTITY_KEYS.OWNER].id }],
     });
 
     await this.housesRepository.save(house).catch((err: any) => {
