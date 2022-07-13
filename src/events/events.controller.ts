@@ -31,11 +31,7 @@ export class EventsController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
   public async getEvents() {
-    const events = await this.eventsService.findAll();
-
-    if (!events.length) throw new NotFoundException('No events found');
-
-    return events;
+    return await this.eventsService.findAll();
   }
 
   @Get('/:id')

@@ -6,7 +6,6 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  NotFoundException,
   Param,
   Post,
   Put,
@@ -32,11 +31,7 @@ export class HousesController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
   public async getHouses(): Promise<Record<string, any>> {
-    const houses = await this.housesService.findAll();
-
-    if (!houses.length) throw new NotFoundException('No houses found');
-
-    return houses;
+    return await this.housesService.findAll();
   }
 
   @Post()

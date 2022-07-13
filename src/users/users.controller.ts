@@ -6,7 +6,6 @@ import {
   Get,
   HttpCode,
   HttpStatus,
-  NotFoundException,
   Param,
   Post,
   Put,
@@ -32,11 +31,7 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
   public async getUsers(): Promise<Array<UserEntity>> {
-    const users = await this.usersService.findAll();
-
-    if (!users.length) throw new NotFoundException('No users found');
-
-    return users;
+    return await this.usersService.findAll();
   }
 
   @Get('/me')
