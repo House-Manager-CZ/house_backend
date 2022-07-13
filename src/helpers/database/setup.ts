@@ -11,6 +11,14 @@ export const runMigrations = async () => {
   console.log('Migrated database.');
 };
 
+export const deleteAdminUser = async () => {
+  console.log('Deleting admin user if exists...');
+  await connectionSource.getRepository(UserEntity).delete({
+    [USER_ENTITY_KEYS.EMAIL]: process.env.ADMIN_EMAIL,
+  });
+  console.log('Deleted admin user if exists.');
+};
+
 export const insertAdminUser = async () => {
   const adminUser = await connectionSource.getRepository(UserEntity).findOne({
     where: {
@@ -29,12 +37,6 @@ export const insertAdminUser = async () => {
       'ADMIN_USERNAME, ADMIN_EMAIL and ADMIN_PASSWORD must be set',
     );
 
-  console.log('Deleting admin user if exists...');
-  await connectionSource.getRepository(UserEntity).delete({
-    [USER_ENTITY_KEYS.EMAIL]: process.env.ADMIN_EMAIL,
-  });
-  console.log('Deleted admin user if exists.');
-
   console.log(`Inserting admin user...`);
   await connectionSource.getRepository(UserEntity).insert({
     [USER_ENTITY_KEYS.USERNAME]: process.env.ADMIN_USERNAME,
@@ -52,6 +54,9 @@ export const setupDatabase = async (retries = retriesCount) => {
     await connectionSource.initialize();
     console.log('Connected to database.');
 
+    await deleteAdminUser().catch((err) => {
+      console.error(err);
+    });
     await runMigrations();
     await insertAdminUser().catch((err) => {
       console.error(err);
