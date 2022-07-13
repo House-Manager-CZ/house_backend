@@ -3,6 +3,8 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinColumn,
+  JoinTable,
   ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -10,8 +12,7 @@ import {
 } from 'typeorm';
 import { DB_TABLES } from '../db/constants';
 import { Point } from 'geojson';
-import UserEntity from './user.entity';
-import { JoinColumn, JoinTable } from 'typeorm';
+import UserEntity, { USER_ENTITY_KEYS } from './user.entity';
 
 export enum HOUSE_STATUSES {
   ACTIVE = 'ACTIVE',
@@ -74,7 +75,7 @@ export default class HouseEntity {
     },
     inverseJoinColumn: {
       name: 'user_id',
-      referencedColumnName: 'id',
+      referencedColumnName: USER_ENTITY_KEYS.ID,
     },
   })
   [HOUSE_ENTITY_KEYS.MEMBERS]: Array<UserEntity>;

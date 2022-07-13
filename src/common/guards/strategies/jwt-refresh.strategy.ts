@@ -4,6 +4,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Request } from 'express';
 import { jwtConstants } from '../../../auth/consts';
 import { UsersService } from '../../../users/users.service';
+import { USER_ENTITY_KEYS } from '../../../entities/user.entity';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
@@ -14,7 +15,6 @@ export class JwtRefreshStrategy extends PassportStrategy(
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (request: Request) => {
-          console.log(request.headers);
           return request?.headers?.refresh;
         },
         (request: Request) => {
@@ -29,7 +29,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
   async validate(request: Request, payload: any) {
     const refreshToken = request?.cookies?.Refresh || request?.headers?.refresh;
     const user = this.usersService.findIfRefreshToken(refreshToken, {
-      id: payload.userId,
+      [USER_ENTITY_KEYS.ID]: payload.userId,
     });
 
     if (!user) return false;

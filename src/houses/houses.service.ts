@@ -12,6 +12,7 @@ import HouseEntity, {
 import { In, Not, Repository } from 'typeorm';
 import { CreateHouseDto, UpdateHouseDto } from './houses-dto';
 import { DB_ERROR_CODES } from '../db/constants';
+import { USER_ENTITY_KEYS } from '../entities/user.entity';
 
 @Injectable()
 export class HousesService {
@@ -36,7 +37,12 @@ export class HousesService {
         [HOUSE_ENTITY_KEYS.LOCATION]: () =>
           `ST_GeomFromText('POINT(${createDto[HOUSE_ENTITY_KEYS.LOCATION]})')`,
       }),
-      members: [{ id: createDto[HOUSE_ENTITY_KEYS.OWNER].id }],
+      members: [
+        {
+          [USER_ENTITY_KEYS.ID]:
+            createDto[HOUSE_ENTITY_KEYS.OWNER][USER_ENTITY_KEYS.ID],
+        },
+      ],
     });
 
     await this.housesRepository.save(house).catch((err: any) => {

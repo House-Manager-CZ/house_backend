@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { compareSync } from 'bcrypt';
-import UserEntity from '../entities/user.entity';
+import UserEntity, { USER_ENTITY_KEYS } from '../entities/user.entity';
 import { jwtConstants } from './consts';
 
 @Injectable()
@@ -17,10 +17,10 @@ export class AuthService {
     password: string,
   ): Promise<UserEntity | null> {
     const user = await this.usersService.findOne({
-      email,
+      [USER_ENTITY_KEYS.EMAIL]: email,
     });
 
-    if (user && compareSync(password, user.password)) {
+    if (user && compareSync(password, user[USER_ENTITY_KEYS.PASSWORD])) {
       return user;
     }
 
@@ -28,7 +28,7 @@ export class AuthService {
   }
 
   public generateAccessTokenCookie(user: any) {
-    const payload = { userId: user.id };
+    const payload = { userId: user[USER_ENTITY_KEYS.ID] };
 
     const token = this.jwtService.sign(payload);
 
@@ -41,7 +41,7 @@ export class AuthService {
   }
 
   public generateRefreshTokenCookie(user: any) {
-    const payload = { userId: user.id };
+    const payload = { userId: user[USER_ENTITY_KEYS.ID] };
 
     const token = this.jwtService.sign(payload, {
       secret: jwtConstants.refreshSecret,

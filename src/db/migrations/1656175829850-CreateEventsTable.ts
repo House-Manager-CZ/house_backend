@@ -6,6 +6,7 @@ import {
   EVENT_STATUSES,
 } from '../../entities/event.entity';
 import { HOUSE_ENTITY_KEYS } from '../../entities/house.entity';
+import { USER_ENTITY_KEYS } from '../../entities/user.entity';
 
 export class CreateEventsTable1656175829850 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -82,7 +83,7 @@ export class CreateEventsTable1656175829850 implements MigrationInterface {
             name: EVENT_FOREIGN_KEYS.OWNER,
             columnNames: [EVENT_ENTITY_KEYS.OWNER],
             referencedTableName: DB_TABLES.USERS,
-            referencedColumnNames: ['id'],
+            referencedColumnNames: [USER_ENTITY_KEYS.ID],
             onDelete: 'NO ACTION',
             onUpdate: 'CASCADE',
           },

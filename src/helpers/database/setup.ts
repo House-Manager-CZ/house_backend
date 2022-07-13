@@ -1,5 +1,5 @@
 import { connectionSource } from '../../../ormconfig';
-import UserEntity from '../../entities/user.entity';
+import UserEntity, { USER_ENTITY_KEYS } from '../../entities/user.entity';
 import { hashSync } from 'bcrypt';
 
 const retriesCount = process.env.NODE_ENV === 'test' ? 0 : 50;
@@ -13,7 +13,7 @@ export const runMigrations = async () => {
 export const insertAdminUser = async () => {
   const adminUser = await connectionSource.getRepository(UserEntity).findOne({
     where: {
-      email: process.env.ADMIN_EMAIL,
+      [USER_ENTITY_KEYS.EMAIL]: process.env.ADMIN_EMAIL,
     },
   });
 
@@ -24,8 +24,8 @@ export const insertAdminUser = async () => {
 
   console.log(`Inserting admin user...`);
   await connectionSource.getRepository(UserEntity).insert({
-    email: process.env.ADMIN_EMAIL,
-    password: hashSync(process.env.ADMIN_PASSWORD, 10),
+    [USER_ENTITY_KEYS.EMAIL]: process.env.ADMIN_EMAIL,
+    [USER_ENTITY_KEYS.PASSWORD]: hashSync(process.env.ADMIN_PASSWORD, 10),
   });
   console.log('Inserted admin user.');
 };
