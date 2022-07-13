@@ -86,18 +86,25 @@ export class UsersService {
     updateDto: UpdateUserDto,
   ): Promise<UserEntity> {
     const user = await this.usersRepository.findOne({
-      where: { [USER_ENTITY_KEYS.ID]: parseInt(id) },
+      where: {
+        [USER_ENTITY_KEYS.ID]: parseInt(id),
+        [USER_ENTITY_KEYS.STATUS]: Not(In([USER_STATUSES.DELETED])),
+      },
     });
 
     if (!user) throw new NotFoundException('User not found');
 
-    return await this.usersRepository
-      .save({ ...user, ...updateDto })
+    await this.usersRepository
+      .update(id, { ...updateDto })
       .catch((err: any) => {
         if (err.code === DB_ERROR_CODES.UNIQUE_CONSTRAINT)
           throw new ConflictException('User already exists');
         else throw new InternalServerErrorException("Can't update user");
       });
+
+    return await this.usersRepository.findOne({
+      where: { [USER_ENTITY_KEYS.ID]: parseInt(id) },
+    });
   }
 
   public async delete(id: string): Promise<void> {

@@ -19,9 +19,12 @@ enum USER_STATUSES {
 export enum USER_ENTITY_KEYS {
   ID = 'id',
   STATUS = 'status',
+  USERNAME = 'username',
   EMAIL = 'email',
   PASSWORD = 'password',
   REFRESH_TOKEN = 'refresh_token',
+  FIRST_NAME = 'first_name',
+  LAST_NAME = 'last_name',
   CREATED_AT = 'created_at',
   UPDATED_AT = 'updated_at',
   DELETED_AT = 'deleted_at',
@@ -47,6 +50,13 @@ export default class UserEntity {
     unique: true,
     nullable: false,
   })
+  [USER_ENTITY_KEYS.USERNAME]: string;
+
+  @Column({
+    type: 'varchar',
+    unique: true,
+    nullable: false,
+  })
   [USER_ENTITY_KEYS.EMAIL]: string;
 
   @Column({
@@ -62,6 +72,18 @@ export default class UserEntity {
   })
   @Exclude()
   [USER_ENTITY_KEYS.REFRESH_TOKEN]?: string;
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  [USER_ENTITY_KEYS.FIRST_NAME]: string;
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  [USER_ENTITY_KEYS.LAST_NAME]: string;
 
   @CreateDateColumn()
   [USER_ENTITY_KEYS.CREATED_AT]: Date;

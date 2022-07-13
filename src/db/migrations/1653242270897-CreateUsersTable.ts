@@ -24,6 +24,12 @@ export class CreateUsersTable1653242270897 implements MigrationInterface {
             default: `'${USER_STATUSES.ACTIVE}'`,
           },
           {
+            name: USER_ENTITY_KEYS.USERNAME,
+            type: 'varchar',
+            isNullable: false,
+            isUnique: true,
+          },
+          {
             name: USER_ENTITY_KEYS.EMAIL,
             type: 'varchar',
             isNullable: false,
@@ -36,6 +42,16 @@ export class CreateUsersTable1653242270897 implements MigrationInterface {
           },
           {
             name: USER_ENTITY_KEYS.REFRESH_TOKEN,
+            type: 'varchar',
+            isNullable: true,
+          },
+          {
+            name: USER_ENTITY_KEYS.FIRST_NAME,
+            type: 'varchar',
+            isNullable: true,
+          },
+          {
+            name: USER_ENTITY_KEYS.LAST_NAME,
             type: 'varchar',
             isNullable: true,
           },

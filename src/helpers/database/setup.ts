@@ -1,6 +1,7 @@
 import { connectionSource } from '../../../ormconfig';
 import UserEntity, { USER_ENTITY_KEYS } from '../../entities/user.entity';
 import { hashSync } from 'bcrypt';
+import { checkAdminUser } from './validation';
 
 const retriesCount = process.env.NODE_ENV === 'test' ? 0 : 50;
 
@@ -17,13 +18,26 @@ export const insertAdminUser = async () => {
     },
   });
 
-  if (adminUser) return;
+  if (adminUser && checkAdminUser(adminUser)) return;
 
-  if (!process.env.ADMIN_EMAIL && !process.env.ADMIN_PASSWORD)
-    throw new Error('ADMIN_EMAIL and ADMIN_PASSWORD must be set');
+  if (
+    !process.env.ADMIN_EMAIL ||
+    !process.env.ADMIN_PASSWORD ||
+    !process.env.ADMIN_USERNAME
+  )
+    throw new Error(
+      'ADMIN_USERNAME, ADMIN_EMAIL and ADMIN_PASSWORD must be set',
+    );
+
+  console.log('Deleting admin user if exists...');
+  await connectionSource.getRepository(UserEntity).delete({
+    [USER_ENTITY_KEYS.EMAIL]: process.env.ADMIN_EMAIL,
+  });
+  console.log('Deleted admin user if exists.');
 
   console.log(`Inserting admin user...`);
   await connectionSource.getRepository(UserEntity).insert({
+    [USER_ENTITY_KEYS.USERNAME]: process.env.ADMIN_USERNAME,
     [USER_ENTITY_KEYS.EMAIL]: process.env.ADMIN_EMAIL,
     [USER_ENTITY_KEYS.PASSWORD]: hashSync(process.env.ADMIN_PASSWORD, 10),
   });
