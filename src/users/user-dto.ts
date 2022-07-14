@@ -19,6 +19,14 @@ export class CreateUserDto {
   @IsNotEmpty()
   @MinLength(6)
   [USER_ENTITY_KEYS.PASSWORD]: string;
+
+  @IsOptional()
+  @IsString()
+  [USER_ENTITY_KEYS.FIRST_NAME]: string;
+
+  @IsOptional()
+  @IsString()
+  [USER_ENTITY_KEYS.LAST_NAME]: string;
 }
 
 export class UpdateUserDto {
@@ -33,4 +41,12 @@ export class UpdateUserDto {
   @IsOptional()
   @MinLength(6)
   [USER_ENTITY_KEYS.PASSWORD]: string;
+
+  @IsOptional()
+  @IsString()
+  [USER_ENTITY_KEYS.FIRST_NAME]: string;
+
+  @IsOptional()
+  @IsString()
+  [USER_ENTITY_KEYS.LAST_NAME]: string;
 }
