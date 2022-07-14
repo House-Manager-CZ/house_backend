@@ -19,6 +19,7 @@ enum USER_STATUSES {
 export enum USER_ENTITY_KEYS {
   ID = 'id',
   STATUS = 'status',
+  SEARCH_KEY = 'search_key',
   USERNAME = 'username',
   EMAIL = 'email',
   PASSWORD = 'password',
@@ -44,6 +45,14 @@ export default class UserEntity {
     default: USER_STATUSES.ACTIVE,
   })
   [USER_ENTITY_KEYS.STATUS]: USER_STATUSES;
+
+  @Column({
+    type: 'varchar',
+    length: '4',
+    nullable: false,
+    default: 'int2(random() * 10000)',
+  })
+  [USER_ENTITY_KEYS.SEARCH_KEY]: string;
 
   @Column({
     type: 'varchar',
