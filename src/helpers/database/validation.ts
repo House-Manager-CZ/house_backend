@@ -9,7 +9,6 @@ export const checkAdminUser = (user: UserEntity): boolean => {
     user[USER_ENTITY_KEYS.EMAIL] !== '' &&
     user[USER_ENTITY_KEYS.EMAIL] === process.env.ADMIN_EMAIL &&
     user[USER_ENTITY_KEYS.PASSWORD] &&
-    user[USER_ENTITY_KEYS.PASSWORD] !== '' &&
-    user[USER_ENTITY_KEYS.PASSWORD] === process.env.ADMIN_PASSWORD
+    user[USER_ENTITY_KEYS.PASSWORD] !== ''
   );
 };

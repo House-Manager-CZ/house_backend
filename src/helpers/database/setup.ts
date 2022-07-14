@@ -12,14 +12,6 @@ export const runMigrations = async () => {
 };
 
 export const insertAdminUser = async () => {
-  const adminUser = await connectionSource.getRepository(UserEntity).findOne({
-    where: {
-      [USER_ENTITY_KEYS.EMAIL]: process.env.ADMIN_EMAIL,
-    },
-  });
-
-  if (adminUser && checkAdminUser(adminUser)) return;
-
   if (
     !process.env.ADMIN_EMAIL ||
     !process.env.ADMIN_PASSWORD ||
@@ -28,6 +20,26 @@ export const insertAdminUser = async () => {
     throw new Error(
       'ADMIN_USERNAME, ADMIN_EMAIL and ADMIN_PASSWORD must be set',
     );
+
+  const adminUser = await connectionSource.getRepository(UserEntity).findOne({
+    where: {
+      [USER_ENTITY_KEYS.EMAIL]: process.env.ADMIN_EMAIL,
+    },
+  });
+
+  if (adminUser) {
+    if (checkAdminUser(adminUser)) return;
+    else {
+      console.log(`Updating admin user...`);
+      await connectionSource.getRepository(UserEntity).update(adminUser.id, {
+        [USER_ENTITY_KEYS.USERNAME]: process.env.ADMIN_USERNAME,
+        [USER_ENTITY_KEYS.EMAIL]: process.env.ADMIN_EMAIL,
+        [USER_ENTITY_KEYS.PASSWORD]: hashSync(process.env.ADMIN_PASSWORD, 10),
+      });
+      console.log('Updated admin user.');
+      return;
+    }
+  }
 
   console.log(`Inserting admin user...`);
   await connectionSource.getRepository(UserEntity).insert({
