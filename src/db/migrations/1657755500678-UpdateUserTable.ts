@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
 import { DB_TABLES } from '../constants';
-import { USER_ENTITY_KEYS } from '../../entities/user.entity';
+import UserEntity, { USER_ENTITY_KEYS } from '../../entities/user.entity';
 
 export class UpdateUserTable1657755500678 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -29,6 +29,26 @@ export class UpdateUserTable1657755500678 implements MigrationInterface {
         isNullable: true,
       }),
     ]);
+
+    await queryRunner.manager
+      .createQueryBuilder()
+      .update<UserEntity>(UserEntity)
+      .set({
+        [USER_ENTITY_KEYS.USERNAME]: () =>
+          `split_part(${USER_ENTITY_KEYS.EMAIL}, '@', 1)`,
+      })
+      .execute();
+
+    await queryRunner.changeColumn(
+      DB_TABLES.USERS,
+      USER_ENTITY_KEYS.USERNAME,
+      new TableColumn({
+        name: USER_ENTITY_KEYS.USERNAME,
+        type: 'varchar',
+        isNullable: false,
+        isUnique: true,
+      }),
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
