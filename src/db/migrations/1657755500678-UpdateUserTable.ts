@@ -8,7 +8,7 @@ export class UpdateUserTable1657755500678 implements MigrationInterface {
       new TableColumn({
         name: USER_ENTITY_KEYS.USERNAME,
         type: 'varchar',
-        isNullable: false,
+        isNullable: true,
         isUnique: true,
       }),
       new TableColumn({
