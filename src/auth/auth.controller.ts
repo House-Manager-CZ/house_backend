@@ -21,7 +21,16 @@ import SentryInterceptor from '../common/interceptors/sentry.interceptor';
 import { jwtConstants } from './consts';
 import parse from 'parse-duration';
 import { RegisterDto } from './auth-dto';
+import {
+  ApiBody,
+  ApiConflictResponse,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 
+@ApiTags('auth')
 @UseInterceptors(SentryInterceptor)
 @Controller('auth')
 export class AuthController {
@@ -33,6 +42,13 @@ export class AuthController {
   @Post('login')
   @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({
+    description: 'Success',
+    type: 'object',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Invalid credentials',
+  })
   private async login(@Req() request: Request, @Res() response: Response) {
     const accessCookie = this.authService.generateAccessTokenCookie(
       request.user,
@@ -61,6 +77,13 @@ export class AuthController {
   @Post('refresh')
   @UseGuards(JwtRefreshAuthGuard)
   @HttpCode(HttpStatus.OK)
+  @ApiOkResponse({
+    description: 'Success',
+    type: 'object',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Invalid credentials',
+  })
   public async refresh(@Req() request: Request, @Res() response: Response) {
     const accessToken = this.authService.generateAccessTokenCookie(
       request.user,
@@ -86,6 +109,17 @@ export class AuthController {
   @Post('register')
   @UsePipes(ValidationPipe)
   @HttpCode(HttpStatus.CREATED)
+  @ApiCreatedResponse({
+    description: 'Success',
+    type: 'object',
+  })
+  @ApiConflictResponse({
+    description: 'User already exists',
+  })
+  @ApiBody({
+    type: RegisterDto,
+    description: 'User registration data',
+  })
   public async register(
     @Res() response: Response,
     @Body() registerDto: RegisterDto,
