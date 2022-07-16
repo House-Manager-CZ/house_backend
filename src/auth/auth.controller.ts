@@ -15,7 +15,7 @@ import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
 import { Request, Response } from 'express';
 import { LocalAuthGuard } from '../common/guards/local-auth.guard';
-import UserEntity from '../entities/user.entity';
+import UserEntity, { USER_ENTITY_KEYS } from '../entities/user.entity';
 import { JwtRefreshAuthGuard } from '../common/guards/jwt-refresh-auth.guard';
 import SentryInterceptor from '../common/interceptors/sentry.interceptor';
 import { jwtConstants } from './consts';
@@ -42,7 +42,7 @@ export class AuthController {
     );
 
     await this.usersService.setRefreshToken(
-      (request.user as UserEntity).id,
+      (request.user as UserEntity)[USER_ENTITY_KEYS.ID],
       refreshCookie.token,
     );
 
@@ -71,7 +71,7 @@ export class AuthController {
     );
 
     await this.usersService.setRefreshToken(
-      (request.user as UserEntity).id,
+      (request.user as UserEntity)[USER_ENTITY_KEYS.ID],
       refreshToken.token,
     );
 
@@ -96,7 +96,10 @@ export class AuthController {
 
     const refreshToken = this.authService.generateRefreshTokenCookie(user);
 
-    await this.usersService.setRefreshToken(user.id, refreshToken.token);
+    await this.usersService.setRefreshToken(
+      user[USER_ENTITY_KEYS.ID],
+      refreshToken.token,
+    );
 
     response.setHeader('Set-Cookie', [accessToken.cookie, refreshToken.cookie]);
     return response.send({

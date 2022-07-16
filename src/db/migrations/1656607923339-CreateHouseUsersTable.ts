@@ -1,6 +1,7 @@
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 import { DB_TABLES } from '../constants';
 import { HOUSE_ENTITY_KEYS } from '../../entities/house.entity';
+import { USER_ENTITY_KEYS } from '../../entities/user.entity';
 
 export class CreateHouseUsersTable1656607923339 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -39,7 +40,7 @@ export class CreateHouseUsersTable1656607923339 implements MigrationInterface {
           {
             name: 'fk_house_users_users',
             referencedTableName: DB_TABLES.USERS,
-            referencedColumnNames: ['id'],
+            referencedColumnNames: [USER_ENTITY_KEYS.ID],
             columnNames: ['user_id'],
             onDelete: 'CASCADE',
             onUpdate: 'CASCADE',

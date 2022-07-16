@@ -5,6 +5,7 @@ import {
   HOUSE_FOREIGN_KEYS,
   HOUSE_STATUSES,
 } from '../../entities/house.entity';
+import { USER_ENTITY_KEYS } from '../../entities/user.entity';
 
 export class CreateHousesTable1655851932423 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -66,7 +67,7 @@ export class CreateHousesTable1655851932423 implements MigrationInterface {
             name: HOUSE_FOREIGN_KEYS.OWNER,
             columnNames: [HOUSE_ENTITY_KEYS.OWNER],
             referencedTableName: DB_TABLES.USERS,
-            referencedColumnNames: ['id'],
+            referencedColumnNames: [USER_ENTITY_KEYS.ID],
             onDelete: 'NO ACTION',
             onUpdate: 'CASCADE',
           },

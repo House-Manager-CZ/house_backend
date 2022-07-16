@@ -1,21 +1,52 @@
-import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MinLength,
+} from 'class-validator';
+import { USER_ENTITY_KEYS } from '../entities/user.entity';
 
 export class CreateUserDto {
   @IsNotEmpty()
+  @IsString()
+  [USER_ENTITY_KEYS.USERNAME]: string;
+
+  @IsNotEmpty()
   @IsEmail()
-  email: string;
+  [USER_ENTITY_KEYS.EMAIL]: string;
 
   @IsNotEmpty()
   @MinLength(6)
-  password: string;
+  [USER_ENTITY_KEYS.PASSWORD]: string;
+
+  @IsOptional()
+  @IsString()
+  [USER_ENTITY_KEYS.FIRST_NAME]: string;
+
+  @IsOptional()
+  @IsString()
+  [USER_ENTITY_KEYS.LAST_NAME]: string;
 }
 
 export class UpdateUserDto {
-  @IsNotEmpty()
-  @IsEmail()
-  email: string;
+  @IsOptional()
+  @IsString()
+  [USER_ENTITY_KEYS.USERNAME]: string;
 
-  @IsNotEmpty()
+  @IsOptional()
+  @IsEmail()
+  [USER_ENTITY_KEYS.EMAIL]: string;
+
+  @IsOptional()
   @MinLength(6)
-  password: string;
+  [USER_ENTITY_KEYS.PASSWORD]: string;
+
+  @IsOptional()
+  @IsString()
+  [USER_ENTITY_KEYS.FIRST_NAME]: string;
+
+  @IsOptional()
+  @IsString()
+  [USER_ENTITY_KEYS.LAST_NAME]: string;
 }

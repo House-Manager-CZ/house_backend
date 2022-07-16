@@ -14,7 +14,7 @@ import EventEntity, {
 import { In, Not, QueryFailedError, Repository } from 'typeorm';
 import { CreateEventDto, UpdateEventDto } from './events-dto';
 import { Request } from 'express';
-import UserEntity from '../entities/user.entity';
+import UserEntity, { USER_ENTITY_KEYS } from '../entities/user.entity';
 import { DB_ERROR_CODES } from '../db/constants';
 import { HOUSE_ENTITY_KEYS } from '../entities/house.entity';
 
@@ -58,7 +58,9 @@ export class EventsService {
       [EVENT_ENTITY_KEYS.HOUSE]: {
         [HOUSE_ENTITY_KEYS.ID]: createDto[EVENT_ENTITY_KEYS.HOUSE],
       },
-      [EVENT_ENTITY_KEYS.OWNER]: { id: (<UserEntity>request.user).id },
+      [EVENT_ENTITY_KEYS.OWNER]: {
+        [USER_ENTITY_KEYS.ID]: (<UserEntity>request.user)[USER_ENTITY_KEYS.ID],
+      },
     });
 
     const savedEvent = await this.eventRepository

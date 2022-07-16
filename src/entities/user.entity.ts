@@ -16,12 +16,28 @@ enum USER_STATUSES {
   DELETED = 'DELETED',
 }
 
+export enum USER_ENTITY_KEYS {
+  ID = 'id',
+  STATUS = 'status',
+  SEARCH_KEY = 'search_key',
+  SEARCH_NAME = 'search_name',
+  USERNAME = 'username',
+  EMAIL = 'email',
+  PASSWORD = 'password',
+  REFRESH_TOKEN = 'refresh_token',
+  FIRST_NAME = 'first_name',
+  LAST_NAME = 'last_name',
+  CREATED_AT = 'created_at',
+  UPDATED_AT = 'updated_at',
+  DELETED_AT = 'deleted_at',
+}
+
 @Entity({
   name: DB_TABLES.USERS,
 })
 export default class UserEntity {
   @PrimaryGeneratedColumn()
-  id: number;
+  [USER_ENTITY_KEYS.ID]: number;
 
   @Column({
     type: 'enum',
@@ -29,41 +45,76 @@ export default class UserEntity {
     enum: Object.values(USER_STATUSES),
     default: USER_STATUSES.ACTIVE,
   })
-  status: USER_STATUSES;
+  [USER_ENTITY_KEYS.STATUS]: USER_STATUSES;
+
+  @Column({
+    type: 'varchar',
+    length: '4',
+    nullable: false,
+    default: 'substring(random()::text, 3, 4)',
+  })
+  [USER_ENTITY_KEYS.SEARCH_KEY]: string;
+
+  @Column({
+    type: 'varchar',
+    generatedType: 'STORED',
+    generatedIdentity: 'ALWAYS',
+    asExpression: `${USER_ENTITY_KEYS.USERNAME} || '#' || ${USER_ENTITY_KEYS.SEARCH_KEY}`,
+  })
+  [USER_ENTITY_KEYS.SEARCH_NAME]: string;
 
   @Column({
     type: 'varchar',
     unique: true,
     nullable: false,
   })
-  email: string;
+  [USER_ENTITY_KEYS.USERNAME]: string;
+
+  @Column({
+    type: 'varchar',
+    unique: true,
+    nullable: false,
+  })
+  [USER_ENTITY_KEYS.EMAIL]: string;
 
   @Column({
     type: 'varchar',
     nullable: false,
   })
   @Exclude()
-  password: string;
+  [USER_ENTITY_KEYS.PASSWORD]: string;
 
   @Column({
     type: 'varchar',
     nullable: true,
   })
   @Exclude()
-  refresh_token?: string;
+  [USER_ENTITY_KEYS.REFRESH_TOKEN]?: string;
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  [USER_ENTITY_KEYS.FIRST_NAME]: string;
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  [USER_ENTITY_KEYS.LAST_NAME]: string;
 
   @CreateDateColumn()
-  created_at: Date;
+  [USER_ENTITY_KEYS.CREATED_AT]: Date;
 
   @UpdateDateColumn()
-  updated_at: Date;
+  [USER_ENTITY_KEYS.UPDATED_AT]: Date;
 
   @DeleteDateColumn()
-  deleted_at: Date;
+  [USER_ENTITY_KEYS.DELETED_AT]: Date;
 
   @BeforeInsert()
   async hashPassword() {
-    this.password = hashSync(this.password, 10);
+    this[USER_ENTITY_KEYS.PASSWORD] = hashSync(this.password, 10);
   }
 }
 
