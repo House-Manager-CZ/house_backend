@@ -9,6 +9,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Req,
   UseGuards,
   UseInterceptors,
@@ -21,6 +22,7 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import SentryInterceptor from '../common/interceptors/sentry.interceptor';
 import { Request } from 'express';
 import UserEntity, { USER_ENTITY_KEYS } from '../entities/user.entity';
+import { Like } from 'typeorm';
 
 @UseInterceptors(SentryInterceptor, ClassSerializerInterceptor)
 @Controller('users')
@@ -30,8 +32,12 @@ export class UsersController {
   @Get()
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
-  public async getUsers(): Promise<Array<UserEntity>> {
-    return await this.usersService.findAll();
+  public async getUsers(
+    @Query('q') query?: string,
+  ): Promise<Array<UserEntity>> {
+    return await this.usersService.findAll({
+      ...(query && { [USER_ENTITY_KEYS.SEARCH_NAME]: Like(`%${query}%`) }),
+    });
   }
 
   @Get('/me')

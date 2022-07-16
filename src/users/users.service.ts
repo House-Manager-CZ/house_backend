@@ -20,10 +20,15 @@ export class UsersService {
     private readonly usersRepository: Repository<UserEntity>,
   ) {}
 
-  public async findAll(): Promise<Array<UserEntity>> {
+  public async findAll(
+    criteria?:
+      | FindOptionsWhere<UserEntity>
+      | Array<FindOptionsWhere<UserEntity>>,
+  ): Promise<Array<UserEntity>> {
     return this.usersRepository.find({
       where: {
         [USER_ENTITY_KEYS.STATUS]: Not(In([USER_STATUSES.DELETED])),
+        ...criteria,
       },
     });
   }
