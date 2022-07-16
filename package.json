@@ -30,6 +30,7 @@
     "@nestjs/jwt": "^9.0.0",
     "@nestjs/passport": "^9.0.0",
     "@nestjs/platform-express": "^9.0.3",
+    "@nestjs/swagger": "^6.0.4",
     "@nestjs/typeorm": "^9.0.0",
     "@sentry/node": "^7.7.0",
     "@sentry/tracing": "^7.7.0",
