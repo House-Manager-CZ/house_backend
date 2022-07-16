@@ -19,13 +19,6 @@ export class UpdateUserTable1657755500678 implements MigrationInterface {
         default: 'substring(random()::text, 3, 4)',
       }),
       new TableColumn({
-        name: USER_ENTITY_KEYS.SEARCH_NAME,
-        type: 'varchar',
-        generatedType: 'STORED',
-        generatedIdentity: 'ALWAYS',
-        asExpression: `${USER_ENTITY_KEYS.USERNAME} || '#' || ${USER_ENTITY_KEYS.SEARCH_KEY}`,
-      }),
-      new TableColumn({
         name: USER_ENTITY_KEYS.FIRST_NAME,
         type: 'varchar',
         isNullable: true,
@@ -45,6 +38,17 @@ export class UpdateUserTable1657755500678 implements MigrationInterface {
           `split_part(${USER_ENTITY_KEYS.EMAIL}, '@', 1)`,
       })
       .execute();
+
+    await queryRunner.addColumn(
+      DB_TABLES.USERS,
+      new TableColumn({
+        name: USER_ENTITY_KEYS.SEARCH_NAME,
+        type: 'varchar',
+        generatedType: 'STORED',
+        generatedIdentity: 'ALWAYS',
+        asExpression: `${USER_ENTITY_KEYS.USERNAME} || '#' || ${USER_ENTITY_KEYS.SEARCH_KEY}`,
+      }),
+    );
 
     await queryRunner.changeColumn(
       DB_TABLES.USERS,
