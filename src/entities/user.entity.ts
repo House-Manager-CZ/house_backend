@@ -51,7 +51,7 @@ export default class UserEntity {
     type: 'varchar',
     length: '4',
     nullable: false,
-    default: 'int2(random() * 10000)',
+    default: 'substring(random()::text, 3, 4)',
   })
   [USER_ENTITY_KEYS.SEARCH_KEY]: string;
 
