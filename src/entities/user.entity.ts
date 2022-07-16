@@ -20,6 +20,7 @@ export enum USER_ENTITY_KEYS {
   ID = 'id',
   STATUS = 'status',
   SEARCH_KEY = 'search_key',
+  SEARCH_NAME = 'search_name',
   USERNAME = 'username',
   EMAIL = 'email',
   PASSWORD = 'password',
@@ -53,6 +54,14 @@ export default class UserEntity {
     default: 'int2(random() * 10000)',
   })
   [USER_ENTITY_KEYS.SEARCH_KEY]: string;
+
+  @Column({
+    type: 'varchar',
+    generatedType: 'STORED',
+    generatedIdentity: 'ALWAYS',
+    asExpression: `${USER_ENTITY_KEYS.USERNAME} || '#' || ${USER_ENTITY_KEYS.SEARCH_KEY}`,
+  })
+  [USER_ENTITY_KEYS.SEARCH_NAME]: string;
 
   @Column({
     type: 'varchar',
