@@ -20,8 +20,25 @@ import { CreateHouseDto, UpdateHouseDto } from './houses-dto';
 import { ValidationPipe } from '../common/pipe/validation.pipe';
 import { Request } from 'express';
 import UserEntity from '../entities/user.entity';
-import { HOUSE_ENTITY_KEYS } from '../entities/house.entity';
+import HouseEntity, { HOUSE_ENTITY_KEYS } from '../entities/house.entity';
+import {
+  ApiBody,
+  ApiConflictResponse,
+  ApiCookieAuth,
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiParam,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 
+@ApiTags('houses')
+@ApiCookieAuth()
+@ApiUnauthorizedResponse({
+  description: 'Unauthorized',
+})
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('houses')
 export class HousesController {
@@ -30,6 +47,11 @@ export class HousesController {
   @Get()
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
+  @ApiOkResponse({
+    description: 'Houses array',
+    type: HouseEntity,
+    isArray: true,
+  })
   public async getHouses(): Promise<Record<string, any>> {
     return await this.housesService.findAll();
   }
@@ -38,6 +60,15 @@ export class HousesController {
   @HttpCode(HttpStatus.CREATED)
   @UsePipes(ValidationPipe)
   @UseGuards(JwtAuthGuard)
+  @ApiCreatedResponse({
+    description: 'House created',
+  })
+  @ApiConflictResponse({
+    description: 'House already exists',
+  })
+  @ApiBody({
+    type: CreateHouseDto,
+  })
   public async createHouse(
     @Req() request: Request,
     @Body() createHouseDto: CreateHouseDto,
@@ -51,6 +82,25 @@ export class HousesController {
   @UsePipes(ValidationPipe)
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
+  @ApiOkResponse({
+    description: 'House updated',
+    type: () => HouseEntity,
+  })
+  @ApiNotFoundResponse({
+    description: 'House not found',
+  })
+  @ApiConflictResponse({
+    description: 'House already exists',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'House id',
+    type: 'string',
+    required: true,
+  })
+  @ApiBody({
+    type: UpdateHouseDto,
+  })
   public async updateHouse(
     @Param('id') id: string,
     @Body() updateHouseDto: UpdateHouseDto,
@@ -59,8 +109,20 @@ export class HousesController {
   }
 
   @Delete('/:id')
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAuthGuard)
+  @ApiNoContentResponse({
+    description: 'House deleted',
+  })
+  @ApiNotFoundResponse({
+    description: 'House not found',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'House id',
+    type: 'string',
+    required: true,
+  })
   public async deleteHouse(@Param('id') id: string) {
     return this.housesService.delete(id);
   }
