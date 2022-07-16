@@ -21,7 +21,25 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CreateEventDto, UpdateEventDto } from './events-dto';
 import { ValidationPipe } from '../common/pipe/validation.pipe';
 import { Request } from 'express';
+import {
+  ApiBody,
+  ApiCookieAuth,
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiParam,
+  ApiTags,
+  ApiUnauthorizedResponse,
+  ApiUnprocessableEntityResponse,
+} from '@nestjs/swagger';
+import EventEntity from '../entities/event.entity';
 
+@ApiTags('events')
+@ApiCookieAuth()
+@ApiUnauthorizedResponse({
+  description: 'Unauthorized',
+})
 @UseInterceptors(SentryInterceptor, ClassSerializerInterceptor)
 @Controller('events')
 export class EventsController {
@@ -30,6 +48,11 @@ export class EventsController {
   @Get()
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
+  @ApiOkResponse({
+    description: 'Events array',
+    type: () => EventEntity,
+    isArray: true,
+  })
   public async getEvents() {
     return await this.eventsService.findAll();
   }
@@ -37,6 +60,20 @@ export class EventsController {
   @Get('/:id')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
+  @ApiOkResponse({
+    description: 'Event',
+    type: () => EventEntity,
+    isArray: false,
+  })
+  @ApiNotFoundResponse({
+    description: 'Event not found',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Event id',
+    type: 'string',
+    required: true,
+  })
   public async getEvent(@Param('id') id: string) {
     const event = await this.eventsService.findOne(id);
 
@@ -49,6 +86,18 @@ export class EventsController {
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(JwtAuthGuard)
   @UsePipes(ValidationPipe)
+  @ApiCreatedResponse({
+    description: 'Event created',
+    type: () => EventEntity,
+    isArray: false,
+  })
+  @ApiUnprocessableEntityResponse({
+    description: 'Validation error',
+  })
+  @ApiBody({
+    description: 'Event',
+    type: () => EventEntity,
+  })
   public async createEvent(
     @Req() req: Request,
     @Body() createEventDto: CreateEventDto,
@@ -60,6 +109,27 @@ export class EventsController {
   @HttpCode(HttpStatus.OK)
   @UsePipes(ValidationPipe)
   @UseGuards(JwtAuthGuard)
+  @ApiOkResponse({
+    description: 'Event updated',
+    type: () => EventEntity,
+    isArray: false,
+  })
+  @ApiNotFoundResponse({
+    description: 'Event not found',
+  })
+  @ApiUnprocessableEntityResponse({
+    description: 'Validation error',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Event id',
+    type: 'string',
+    required: true,
+  })
+  @ApiBody({
+    description: 'Event',
+    type: () => EventEntity,
+  })
   public async updateEvent(
     @Param('id') id: string,
     @Body() updateEventDto: UpdateEventDto,
@@ -68,8 +138,19 @@ export class EventsController {
   }
 
   @Delete('/:id')
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAuthGuard)
+  @ApiNoContentResponse({
+    description: 'Event deleted',
+  })
+  @ApiNotFoundResponse({
+    description: 'Event not found',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Event id',
+    type: 'string',
+  })
   public async deleteEvent(@Param('id') id: string) {
     await this.eventsService.delete(id);
   }
