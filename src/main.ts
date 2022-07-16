@@ -5,6 +5,7 @@ import * as cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { config } from 'dotenv';
 import * as Sentry from '@sentry/node';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   config();
@@ -15,6 +16,19 @@ async function bootstrap() {
       credentials: true,
     },
   });
+
+  const docConfig = new DocumentBuilder()
+    .setTitle('House Manager API')
+    .setDescription("House Manager API's description")
+    .setVersion(process.env.npm_package_version)
+    .addCookieAuth('Authentication', {
+      name: 'Authentication',
+      type: 'apiKey',
+    })
+    .build();
+
+  const doc = SwaggerModule.createDocument(app, docConfig);
+  SwaggerModule.setup('api', app, doc);
 
   Sentry.init({
     dsn: process.env.SENTRY_DSN,
