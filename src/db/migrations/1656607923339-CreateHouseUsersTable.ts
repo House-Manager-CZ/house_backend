@@ -2,6 +2,10 @@ import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 import { DB_TABLES } from '../constants';
 import { HOUSE_ENTITY_KEYS } from '../../entities/house.entity';
 import { USER_ENTITY_KEYS } from '../../entities/user.entity';
+import {
+  HOUSE_MEMBER_ENTITY_KEYS,
+  HOUSE_MEMBER_FOREIGN_KEYS,
+} from '../../entities/houseMember.entity';
 
 export class CreateHouseUsersTable1656607923339 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -10,38 +14,34 @@ export class CreateHouseUsersTable1656607923339 implements MigrationInterface {
         name: DB_TABLES.HOUSE_USERS,
         columns: [
           {
-            name: 'id',
-            type: 'int',
-            isPrimary: true,
-            isGenerated: true,
-          },
-          {
-            name: 'house_id',
+            name: HOUSE_MEMBER_ENTITY_KEYS.HOUSE_ID,
             type: 'uuid',
             unsigned: true,
             isNullable: false,
+            isPrimary: true,
           },
           {
-            name: 'user_id',
+            name: HOUSE_MEMBER_ENTITY_KEYS.USER_ID,
             type: 'int',
             unsigned: true,
             isNullable: false,
+            isPrimary: true,
           },
         ],
         foreignKeys: [
           {
-            name: 'fk_house_users_houses',
+            name: HOUSE_MEMBER_FOREIGN_KEYS.HOUSE,
             referencedTableName: DB_TABLES.HOUSES,
             referencedColumnNames: [HOUSE_ENTITY_KEYS.ID],
-            columnNames: ['house_id'],
+            columnNames: [HOUSE_MEMBER_ENTITY_KEYS.HOUSE_ID],
             onDelete: 'CASCADE',
             onUpdate: 'CASCADE',
           },
           {
-            name: 'fk_house_users_users',
+            name: HOUSE_MEMBER_FOREIGN_KEYS.USER,
             referencedTableName: DB_TABLES.USERS,
             referencedColumnNames: [USER_ENTITY_KEYS.ID],
-            columnNames: ['user_id'],
+            columnNames: [HOUSE_MEMBER_ENTITY_KEYS.USER_ID],
             onDelete: 'CASCADE',
             onUpdate: 'CASCADE',
           },
