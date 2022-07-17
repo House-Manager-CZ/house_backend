@@ -4,10 +4,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { HousesController } from './houses.controller';
 import HouseEntity from '../entities/house.entity';
 import { MembersService } from './members.service';
-import UserEntity from '../entities/user.entity';
+import HouseMemberEntity from '../entities/houseMember.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([HouseEntity, UserEntity])],
+  imports: [TypeOrmModule.forFeature([HouseEntity, HouseMemberEntity])],
   providers: [HousesService, MembersService],
   controllers: [HousesController],
 })

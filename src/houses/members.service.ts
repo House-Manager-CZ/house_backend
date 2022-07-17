@@ -1,73 +1,60 @@
 import {
   Injectable,
-  NotFoundException,
+  InternalServerErrorException,
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import HouseEntity, { HOUSE_ENTITY_KEYS } from '../entities/house.entity';
 import { Repository } from 'typeorm';
 import { AddHouseMemberDto, DeleteHouseMemberDto } from './houses-dto';
-import UserEntity, { USER_ENTITY_KEYS } from '../entities/user.entity';
+import HouseMemberEntity, {
+  HOUSE_MEMBER_ENTITY_KEYS,
+  HOUSE_MEMBER_FOREIGN_KEYS,
+} from '../entities/houseMember.entity';
+import { DB_ERROR_CODES } from '../db/constants';
 
 @Injectable()
 export class MembersService {
   constructor(
-    @InjectRepository(HouseEntity)
-    private readonly housesRepository: Repository<HouseEntity>,
-    @InjectRepository(UserEntity)
-    private readonly usersRepository: Repository<UserEntity>,
+    @InjectRepository(HouseMemberEntity)
+    private readonly houseMemberRepository: Repository<HouseMemberEntity>,
   ) {}
 
-  public async findAll(houseId: string) {
-    const house = await this.housesRepository.findOne({
+  public async findAll(houseId: string): Promise<Array<HouseMemberEntity>> {
+    return await this.houseMemberRepository.find({
       where: {
-        [HOUSE_ENTITY_KEYS.ID]: houseId,
+        [HOUSE_MEMBER_ENTITY_KEYS.HOUSE_ID]: houseId,
       },
-      relations: [HOUSE_ENTITY_KEYS.MEMBERS],
+      relations: [HOUSE_MEMBER_ENTITY_KEYS.USER],
     });
-
-    if (!house) throw new NotFoundException('House not found');
-
-    return house[HOUSE_ENTITY_KEYS.MEMBERS];
   }
 
-  public async addMember(houseId: string, addHouseMember: AddHouseMemberDto) {
-    const house = await this.housesRepository.findOne({
+  public async addMember(
+    houseId: string,
+    addHouseMember: AddHouseMemberDto,
+  ): Promise<Array<HouseMemberEntity>> {
+    await this.houseMemberRepository
+      .insert({
+        [HOUSE_MEMBER_ENTITY_KEYS.HOUSE_ID]: houseId,
+        [HOUSE_MEMBER_ENTITY_KEYS.USER_ID]: addHouseMember.user_id,
+      })
+      .catch((err: any) => {
+        if (err.code === DB_ERROR_CODES.FOREIGN_KEY_VIOLATION) {
+          if (err.constraint === HOUSE_MEMBER_FOREIGN_KEYS.HOUSE)
+            throw new UnprocessableEntityException('House not found');
+          else if (err.constraint === HOUSE_MEMBER_FOREIGN_KEYS.USER)
+            throw new UnprocessableEntityException('User not found');
+        } else if (err.code === DB_ERROR_CODES.UNIQUE_CONSTRAINT) {
+          throw new UnprocessableEntityException('User is already a member');
+        }
+
+        throw new InternalServerErrorException("Can't add member");
+      });
+
+    return this.houseMemberRepository.find({
       where: {
-        [HOUSE_ENTITY_KEYS.ID]: houseId,
+        [HOUSE_MEMBER_ENTITY_KEYS.HOUSE_ID]: houseId,
       },
-      relations: [HOUSE_ENTITY_KEYS.MEMBERS],
-    });
-
-    if (!house) throw new NotFoundException('House not found');
-
-    const user = await this.usersRepository.findOne({
-      where: {
-        [USER_ENTITY_KEYS.ID]: addHouseMember.user_id,
-      },
-    });
-
-    if (!user) throw new NotFoundException('User not found');
-
-    const isAlreadyMember = house.members.find(
-      (member: UserEntity) =>
-        member[USER_ENTITY_KEYS.ID] === user[USER_ENTITY_KEYS.ID],
-    );
-
-    if (isAlreadyMember)
-      throw new UnprocessableEntityException(
-        'User is already a member of this house',
-      );
-
-    house[HOUSE_ENTITY_KEYS.MEMBERS].push(user);
-
-    await this.housesRepository.save(house);
-
-    return await this.housesRepository.findOne({
-      where: {
-        [HOUSE_ENTITY_KEYS.ID]: houseId,
-      },
-      relations: [HOUSE_ENTITY_KEYS.MEMBERS],
+      relations: [HOUSE_MEMBER_ENTITY_KEYS.USER],
     });
   }
 
@@ -75,38 +62,9 @@ export class MembersService {
     houseId: string,
     deleteHouseMember: DeleteHouseMemberDto,
   ) {
-    const house = await this.housesRepository.findOne({
-      where: {
-        [HOUSE_ENTITY_KEYS.ID]: houseId,
-      },
-      relations: [HOUSE_ENTITY_KEYS.MEMBERS],
+    return await this.houseMemberRepository.delete({
+      [HOUSE_MEMBER_ENTITY_KEYS.HOUSE_ID]: houseId,
+      [HOUSE_MEMBER_ENTITY_KEYS.USER_ID]: deleteHouseMember.user_id,
     });
-
-    if (!house) throw new NotFoundException('House not found');
-
-    const user = await this.usersRepository.findOne({
-      where: {
-        [USER_ENTITY_KEYS.ID]: deleteHouseMember.user_id,
-      },
-    });
-
-    if (!user) throw new NotFoundException('User not found');
-
-    const isMember = house.members.find(
-      (member: UserEntity) =>
-        member[USER_ENTITY_KEYS.ID] === user[USER_ENTITY_KEYS.ID],
-    );
-
-    if (!isMember)
-      throw new UnprocessableEntityException(
-        'User is not a member of this house',
-      );
-
-    house[HOUSE_ENTITY_KEYS.MEMBERS] = house[HOUSE_ENTITY_KEYS.MEMBERS].filter(
-      (member: UserEntity) =>
-        member[USER_ENTITY_KEYS.ID] !== user[USER_ENTITY_KEYS.ID],
-    );
-
-    await this.housesRepository.save(house);
   }
 }
