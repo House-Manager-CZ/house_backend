@@ -12,7 +12,6 @@ import HouseEntity, {
 import { In, Not, Repository } from 'typeorm';
 import { CreateHouseDto, UpdateHouseDto } from './houses-dto';
 import { DB_ERROR_CODES } from '../db/constants';
-import { HOUSE_MEMBER_ENTITY_KEYS } from '../entities/houseMember.entity';
 import { USER_ENTITY_KEYS } from '../entities/user.entity';
 
 @Injectable()
@@ -40,7 +39,7 @@ export class HousesService {
       }),
       members: [
         {
-          [HOUSE_MEMBER_ENTITY_KEYS.USER_ID]:
+          [USER_ENTITY_KEYS.ID]:
             createDto[HOUSE_ENTITY_KEYS.OWNER][USER_ENTITY_KEYS.ID],
         },
       ],

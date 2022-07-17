@@ -4,18 +4,17 @@ import {
   DeleteDateColumn,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { DB_TABLES } from '../db/constants';
 import { Point } from 'geojson';
-import UserEntity from './user.entity';
+import UserEntity, { USER_ENTITY_KEYS } from './user.entity';
 import { ApiProperty } from '@nestjs/swagger';
-import HouseMemberEntity, {
-  HOUSE_MEMBER_ENTITY_KEYS,
-} from './houseMember.entity';
+import { HOUSE_MEMBER_ENTITY_KEYS } from './houseMember.entity';
 
 export enum HOUSE_STATUSES {
   ACTIVE = 'ACTIVE',
@@ -111,11 +110,19 @@ export default class HouseEntity {
     isArray: true,
     required: true,
   })
-  @OneToMany(
-    () => HouseMemberEntity,
-    (houseMember) => houseMember[HOUSE_MEMBER_ENTITY_KEYS.HOUSE],
-  )
-  [HOUSE_ENTITY_KEYS.MEMBERS]: Array<HouseMemberEntity>;
+  @ManyToMany(() => UserEntity)
+  @JoinTable({
+    name: DB_TABLES.HOUSE_USERS,
+    joinColumn: {
+      name: HOUSE_MEMBER_ENTITY_KEYS.HOUSE_ID,
+      referencedColumnName: HOUSE_ENTITY_KEYS.ID,
+    },
+    inverseJoinColumn: {
+      name: HOUSE_MEMBER_ENTITY_KEYS.USER_ID,
+      referencedColumnName: USER_ENTITY_KEYS.ID,
+    },
+  })
+  [HOUSE_ENTITY_KEYS.MEMBERS]: Array<UserEntity>;
 
   @ApiProperty({
     name: HOUSE_ENTITY_KEYS.CREATED_AT,
