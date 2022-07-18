@@ -4,14 +4,12 @@ import {
   Injectable,
   NestInterceptor,
 } from '@nestjs/common';
-import { Observable, tap } from 'rxjs';
-import * as Sentry from '@sentry/node';
+import { catchError, Observable } from 'rxjs';
+import { captureErrorToSentry } from '../../helpers/sentry';
 
 @Injectable()
 export default class SentryInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    return next
-      .handle()
-      .pipe(tap((exception) => Sentry.captureException(exception)));
+    return next.handle().pipe(catchError(captureErrorToSentry));
   }
 }
