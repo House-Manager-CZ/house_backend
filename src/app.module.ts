@@ -9,6 +9,7 @@ import * as redisStore from 'cache-manager-redis-store';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { HousesModule } from './houses/houses.module';
 import { EventsModule } from './events/events.module';
+import SentryInterceptor from './common/interceptors/sentry.interceptor';
 
 @Module({
   imports: [
@@ -38,6 +39,10 @@ import { EventsModule } from './events/events.module';
     {
       provide: APP_INTERCEPTOR,
       useClass: CacheInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: SentryInterceptor,
     },
   ],
 })
