@@ -16,7 +16,12 @@ import {
 } from '@nestjs/common';
 import { HousesService } from './houses.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { CreateHouseDto, UpdateHouseDto } from './houses-dto';
+import {
+  AddHouseMemberDto,
+  CreateHouseDto,
+  DeleteHouseMemberDto,
+  UpdateHouseDto,
+} from './houses-dto';
 import { ValidationPipe } from '../common/pipe/validation.pipe';
 import { Request } from 'express';
 import UserEntity from '../entities/user.entity';
@@ -32,7 +37,9 @@ import {
   ApiParam,
   ApiTags,
   ApiUnauthorizedResponse,
+  ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
+import { MembersService } from './members.service';
 
 @ApiTags('houses')
 @ApiCookieAuth()
@@ -42,7 +49,10 @@ import {
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('houses')
 export class HousesController {
-  constructor(private readonly housesService: HousesService) {}
+  constructor(
+    private readonly housesService: HousesService,
+    private readonly membersService: MembersService,
+  ) {}
 
   @Get()
   @HttpCode(HttpStatus.OK)
@@ -125,5 +135,62 @@ export class HousesController {
   })
   public async deleteHouse(@Param('id') id: string) {
     return this.housesService.delete(id);
+  }
+
+  @Get('/:id/members')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
+  @ApiOkResponse({
+    description: 'House members',
+    type: UserEntity,
+    isArray: true,
+  })
+  @ApiNotFoundResponse({
+    description: 'House not found',
+  })
+  public getHouseMembers(@Param('id') id: string) {
+    return this.membersService.findAll(id);
+  }
+
+  @Post('/:id/members')
+  @HttpCode(HttpStatus.CREATED)
+  @UsePipes(ValidationPipe)
+  @UseGuards(JwtAuthGuard)
+  @ApiCreatedResponse({
+    description: 'House member added',
+    type: UserEntity,
+    isArray: true,
+  })
+  @ApiNotFoundResponse({
+    description: 'House not found',
+  })
+  @ApiUnprocessableEntityResponse({
+    description: 'House member not found',
+  })
+  public addHouseMember(
+    @Param('id') id: string,
+    @Body() addHouseMemberDto: AddHouseMemberDto,
+  ) {
+    return this.membersService.addMember(id, addHouseMemberDto);
+  }
+
+  @Delete('/:id/members')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UsePipes(ValidationPipe)
+  @UseGuards(JwtAuthGuard)
+  @ApiNoContentResponse({
+    description: 'House member deleted',
+  })
+  @ApiNotFoundResponse({
+    description: 'House not found',
+  })
+  @ApiUnprocessableEntityResponse({
+    description: 'House member not found',
+  })
+  public deleteHouseMember(
+    @Param('id') id: string,
+    @Body() deleteHouseMemberDto: DeleteHouseMemberDto,
+  ) {
+    return this.membersService.deleteMember(id, deleteHouseMemberDto);
   }
 }

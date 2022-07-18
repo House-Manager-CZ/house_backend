@@ -1,6 +1,7 @@
 import {
   IsEmpty,
   IsNotEmpty,
+  IsNumberString,
   IsOptional,
   IsString,
   Validate,
@@ -58,3 +59,17 @@ export class UpdateHouseDto {
   @IsOptional()
   [HOUSE_ENTITY_KEYS.LOCATION]: Point;
 }
+
+export class AddHouseMemberDto {
+  @IsNotEmpty()
+  @IsNumberString()
+  @ApiProperty({
+    name: 'user_id',
+    description: 'User id',
+    type: 'string',
+    required: true,
+  })
+  user_id: number;
+}
+
+export class DeleteHouseMemberDto extends AddHouseMemberDto {}
