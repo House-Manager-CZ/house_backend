@@ -1,5 +1,6 @@
 import {
   IsEmpty,
+  IsInt,
   IsNotEmpty,
   IsNumberString,
   IsOptional,
@@ -35,6 +36,17 @@ export class CreateHouseDto {
 
   @IsEmpty()
   [HOUSE_ENTITY_KEYS.OWNER]: UserEntity;
+
+  @ApiProperty({
+    name: HOUSE_ENTITY_KEYS.MEMBERS,
+    description: "House's members",
+    type: 'number',
+    isArray: true,
+    required: false,
+  })
+  @IsInt({ each: true })
+  @IsOptional()
+  [HOUSE_ENTITY_KEYS.MEMBERS]: Array<number>;
 }
 
 export class UpdateHouseDto {
@@ -58,6 +70,17 @@ export class UpdateHouseDto {
   @Validate(LatLngConstraint)
   @IsOptional()
   [HOUSE_ENTITY_KEYS.LOCATION]: Point;
+
+  @ApiProperty({
+    name: HOUSE_ENTITY_KEYS.MEMBERS,
+    description: "House's members",
+    type: 'number',
+    isArray: true,
+    required: false,
+  })
+  @IsInt({ each: true })
+  @IsOptional()
+  [HOUSE_ENTITY_KEYS.MEMBERS]: Array<number>;
 }
 
 export class AddHouseMemberDto {
