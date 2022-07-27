@@ -10,6 +10,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Req,
   UseGuards,
   UseInterceptors,
@@ -18,7 +19,11 @@ import {
 import { EventsService } from './events.service';
 import SentryInterceptor from '../common/interceptors/sentry.interceptor';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { CreateEventDto, UpdateEventDto } from './events-dto';
+import {
+  CreateEventDto,
+  GetEventsFilterDTO,
+  UpdateEventDto,
+} from './events-dto';
 import { ValidationPipe } from '../common/pipe/validation.pipe';
 import { Request } from 'express';
 import {
@@ -48,13 +53,14 @@ export class EventsController {
   @Get()
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
+  @UsePipes(ValidationPipe)
   @ApiOkResponse({
     description: 'Events array',
     type: () => EventEntity,
     isArray: true,
   })
-  public async getEvents() {
-    return await this.eventsService.findAll();
+  public async getEvents(@Query() filterDto: GetEventsFilterDTO) {
+    return await this.eventsService.findAll(filterDto);
   }
 
   @Get('/:id')

@@ -11,8 +11,21 @@ import EventEntity, {
   EVENT_FOREIGN_KEYS,
   EVENT_STATUSES,
 } from '../entities/event.entity';
-import { In, Not, QueryFailedError, Repository } from 'typeorm';
-import { CreateEventDto, UpdateEventDto } from './events-dto';
+import {
+  In,
+  LessThanOrEqual,
+  MoreThan,
+  Not,
+  QueryFailedError,
+  Repository,
+} from 'typeorm';
+import {
+  CreateEventDto,
+  EVENT_DIRECTIONS,
+  EVENT_FILTERS,
+  GetEventsFilterDTO,
+  UpdateEventDto,
+} from './events-dto';
 import { Request } from 'express';
 import UserEntity, { USER_ENTITY_KEYS } from '../entities/user.entity';
 import { DB_ERROR_CODES } from '../db/constants';
@@ -25,9 +38,29 @@ export class EventsService {
     private eventRepository: Repository<EventEntity>,
   ) {}
 
-  public async findAll(): Promise<Array<EventEntity>> {
+  public async findAll(
+    query?: GetEventsFilterDTO,
+  ): Promise<Array<EventEntity>> {
     return await this.eventRepository.find({
-      where: { [EVENT_ENTITY_KEYS.STATUS]: Not(In([EVENT_STATUSES.DELETED])) },
+      where: {
+        [EVENT_ENTITY_KEYS.STATUS]: Not(In([EVENT_STATUSES.DELETED])),
+        ...(query[EVENT_ENTITY_KEYS.HOUSE] && {
+          [EVENT_ENTITY_KEYS.HOUSE]: {
+            [HOUSE_ENTITY_KEYS.ID]: query[EVENT_ENTITY_KEYS.HOUSE],
+          },
+        }),
+        ...(query[EVENT_ENTITY_KEYS.OWNER] && {
+          [EVENT_ENTITY_KEYS.OWNER]: {
+            [USER_ENTITY_KEYS.ID]: query[EVENT_ENTITY_KEYS.OWNER],
+          },
+        }),
+        ...(query[EVENT_FILTERS.DIRECTION] && {
+          [EVENT_ENTITY_KEYS.HOLDING_AT]: (query[EVENT_FILTERS.DIRECTION] ===
+            EVENT_DIRECTIONS.UPCOMING
+            ? MoreThan
+            : LessThanOrEqual)(new Date()),
+        }),
+      },
       relations: [EVENT_ENTITY_KEYS.HOUSE, EVENT_ENTITY_KEYS.OWNER],
     });
   }
