@@ -39,3 +39,36 @@ jobs:
         with:
           environment: production
           version: ${{ github.ref }}
+
+  deployment_update:
+    name: Deployment update
+    runs-on: ubuntu-latest
+    needs:
+      - build_and_push_docker
+    steps:
+      - name: Checkout deployment repo
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ secrets.DEPLOYMENT_REPO }}
+          ssh-key: ${{ secrets.DEPLOYMENT_REPO_SSH }}
+          persist-credentials: true
+      - name: Setup Kustomize
+        uses: imranismail/setup-kustomize@v1
+        with:
+          kustomize-version: "3.6.1"
+      - name: Update Kubernetes resources
+        run: |
+          cd backend
+          kustomize edit set image backend-image=housemanager/backend:${{ github.event.release.tag_name }}
+          cat kustomization.yaml
+      - name: Commit files
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git commit -am "Set frontend image to ${{ github.event.release.tag_name }}"
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.DEPLOYMENT_TOKEN }}
+          ssh: true
+          repository: ${{ secrets.DEPLOYMENT_REPO }}
