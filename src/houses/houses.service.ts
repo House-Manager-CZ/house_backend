@@ -91,11 +91,13 @@ export class HousesService {
               updateDto[HOUSE_ENTITY_KEYS.LOCATION]
             })')`,
         }),
-        [HOUSE_ENTITY_KEYS.MEMBERS]: updateDto[HOUSE_ENTITY_KEYS.MEMBERS].map(
-          (member) => ({
-            [USER_ENTITY_KEYS.ID]: member,
-          }),
-        ),
+        ...(updateDto[HOUSE_ENTITY_KEYS.MEMBERS] && {
+          [HOUSE_ENTITY_KEYS.MEMBERS]: updateDto[HOUSE_ENTITY_KEYS.MEMBERS].map(
+            (member) => ({
+              [USER_ENTITY_KEYS.ID]: member,
+            }),
+          ),
+        }),
       })
       .catch((err: any) => {
         if (err.code === DB_ERROR_CODES.UNIQUE_CONSTRAINT)
