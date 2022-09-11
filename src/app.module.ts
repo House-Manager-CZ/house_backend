@@ -1,11 +1,10 @@
-import { CacheInterceptor, CacheModule, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 
-import * as redisStore from 'cache-manager-redis-store';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { HousesModule } from './houses/houses.module';
 import { EventsModule } from './events/events.module';
@@ -22,12 +21,6 @@ import SentryInterceptor from './common/interceptors/sentry.interceptor';
       database: process.env.POSTGRES_DB,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
     }),
-    CacheModule.register({
-      store: redisStore,
-      host: process.env.REDIS_HOST,
-      port: process.env.REDIS_PORT,
-      isGlobal: true,
-    }),
     UsersModule,
     AuthModule,
     HousesModule,
@@ -36,10 +29,6 @@ import SentryInterceptor from './common/interceptors/sentry.interceptor';
   controllers: [AppController],
   providers: [
     AppService,
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: CacheInterceptor,
-    },
     {
       provide: APP_INTERCEPTOR,
       useClass: SentryInterceptor,
